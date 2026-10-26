@@ -72,6 +72,15 @@ table{width:100%;border-collapse:collapse;font-size:.93rem}th,td{padding:9px 8px
 .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px}.kv dt{color:var(--mut);font-weight:700}.kv dd{margin:0;font-weight:700}
 footer.f{text-align:center;color:var(--mut);padding:20px;font-size:.85rem}
 @media print{header.top,nav.pills,.noprint,.toast,footer.f{display:none!important}body{background:#fff}main{padding:0}.card,.stat{box-shadow:none}.tw{max-height:none;overflow:visible}}
+
+/* تصميم كارت التور الفخم */
+.fancy-card { background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%); border: 1px solid #bbf7d0; border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px -5px rgba(22, 163, 74, 0.15), 0 8px 10px -6px rgba(22, 163, 74, 0.1); position: relative; overflow: hidden; margin-bottom: 15px; }
+.fancy-card::before { content: ""; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(34,197,94,0.2) 0%, rgba(255,255,255,0) 70%); border-radius: 50%; }
+.fancy-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; position: relative; border-bottom: 1px dashed #bbf7d0; padding-bottom: 15px; }
+.avatar-circle { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--g2), var(--g)); color: #fff; display: grid; place-items: center; font-size: 28px; font-weight: 800; box-shadow: 0 4px 10px rgba(22,163,74,0.3); }
+.fancy-kv { display: grid; grid-template-columns: auto 1fr; gap: 8px 12px; font-size: 0.95rem; position: relative; }
+.fancy-kv dt { color: var(--mut); font-weight: 700; }
+.fancy-kv dd { margin: 0; font-weight: 800; color: var(--ink); }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
@@ -156,7 +165,7 @@ const mapDocs = s => s.docs.map(d => ({ id: d.id, ...d.data() }));
 
 const app = $("#app");
 const A = { user: { uid: "local_admin" }, role: "admin", name: "الأستاذ محمد", centers: [], groups: [], students: null, unsubs: [] };
-const isT = () => true; 
+const isT = () => A.role === "admin"; 
 const gById = id => A.groups.find(g => g.id === id), cById = id => A.centers.find(c => c.id === id);
 const unsubAll = () => { A.unsubs.forEach(f => f()); A.unsubs = []; };
 const listen = (q, cb) => { A.unsubs.push(onSnapshot(q, s => cb(mapDocs(s)), e => console.warn(e))); };
@@ -185,24 +194,58 @@ function renderLogin(msg) {
   ${msg ? `<div class="err">${esc(msg)}</div>` : ""}<button class="btn" style="width:100%;margin-top:14px" type="submit">دخول</button></form>
   <div class="phrase" style="padding:8px">كل مسألة ليها حل</div></div></main>`;
 }
+
+// تسجيل دخول مباشر (بدون Firebase Auth)
 ACT.login = async f => {
   const v = formData(f);
-  if (v.email.trim() === ADMIN_EMAIL && v.pw === ADMIN_PASSWORD) {
+  const email = v.email.trim();
+  
+  // فحص الأدمن
+  if (email === ADMIN_EMAIL && v.pw === ADMIN_PASSWORD) {
     localStorage.setItem("isAdminLoggedIn", "true");
+    localStorage.setItem("userRole", "admin");
+    localStorage.setItem("userName", "الأستاذ محمد");
+    A.role = "admin";
+    A.name = "الأستاذ محمد";
     await loadBase(); renderShell(); route();
-  } else {
-    throw { message: "بيانات الدخول غير صحيحة" };
+    return;
   }
+
+  // فحص المساعدين (بحث مباشر في قاعدة البيانات)
+  const q = query(collection(db, "users"), where("email", "==", email), where("password", "==", v.pw), where("role", "==", "assistant"), where("active", "==", true));
+  const snap = await getDocs(q);
+  
+  if (!snap.empty) {
+    const user = snap.docs[0].data();
+    localStorage.setItem("isAdminLoggedIn", "true");
+    localStorage.setItem("userRole", "assistant");
+    localStorage.setItem("userName", user.name);
+    A.role = "assistant";
+    A.name = user.name;
+    await loadBase(); renderShell(); route();
+    return;
+  }
+
+  throw { message: "بيانات الدخول غير صحيحة" };
 };
-ACT.logout = async () => { localStorage.removeItem("isAdminLoggedIn"); location.hash = "#/"; location.reload(); };
+
+ACT.logout = async () => { 
+  localStorage.removeItem("isAdminLoggedIn"); 
+  localStorage.removeItem("userRole");
+  localStorage.removeItem("userName");
+  location.hash = "#/"; 
+  location.reload(); 
+};
 
 const NAV_T = [["dashboard", "الرئيسية"], ["students", "الطلاب"], ["attendance", "الحضور والغياب"], ["scan", "مسح QR"], ["centers", "السناتر والمجموعات"], ["homework", "الواجبات"], ["exams", "الامتحانات"], ["notifs", "الإشعارات"], ["assistants", "المساعدون"], ["reports", "التقارير"], ["settings", "الإعدادات"]];
-const navItems = () => NAV_T;
+const navItems = () => isT() ? NAV_T : [["dashboard", "الرئيسية"], ["scan", "تسجيل الحضور"]];
+
 function renderShell() {
   app.innerHTML = `<header class="top"><a class="logo" href="#/dashboard"><span class="mark">√</span><span>المصطفى في الرياضيات<small>لوحة الإدارة</small></span></a><span class="sp"></span>
-  <span class="chip ok">المدرس الرئيسي</span><span class="sm b" style="max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(A.name)}</span><button class="btn ghost sm" data-act="logout">خروج</button></header>
+  <span class="chip ok">${isT() ? "المدرس الرئيسي" : "مساعد"}</span><span class="sm b" style="max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(A.name)}</span><button class="btn ghost sm" data-act="logout">خروج</button></header>
   <nav class="pills" id="nav">${navItems().map(([k, t]) => `<a href="#/${k}" data-k="${k}">${t}</a>`).join("")}</nav><main id="view"></main><footer class="f">مع المصطفى، كل معادلة ليها حل 💚</footer>`;
 }
+
 const V = {};
 async function route() {
   unsubAll(); if(typeof stopScan === 'function') stopScan();
@@ -221,7 +264,9 @@ async function ensureToday(date) {
   for (const g of gs) { try { out.push({ g, s: await ensureSession(g, date) }); } catch (e) { console.warn("session", g.name, e); out.push({ g, s: null }); } }
   return out;
 }
+
 V.dashboard = async el => {
+  if (!isT()) return V.assistantHome(el);
   const today = todayStr(), dow = dowOf(today), todayGroups = activeGroups().filter(g => (g.days || []).includes(dow));
   const [total, ens] = await Promise.all([getCountFromServer(collection(db, "students")).then(s => s.data().count).catch(() => 0),
   Promise.all(todayGroups.map(g => getCountFromServer(query(collection(db, "groupEnrollments"), where("groupId", "==", g.id), where("active", "==", true))).then(s => s.data().count)))]);
@@ -256,13 +301,14 @@ V.dashboard = async el => {
   listen(query(collection(db, "sessions"), where("status", "==", "open")), l => { D.open = l; draw(); });
 };
 
-ACT.closeSession = async t => { if (!confirm("إغلاق الحصة وتسجيل الغياب لمن لم يحضر؟")) return; const n = await closeSession(t.dataset.id); toast(`تم الإغلاق — سُجّل غياب ${n} طالب`); rerender(); };
-ACT.closeAllEnded = async () => {
-  if (!confirm("إغلاق كل الحصص المنتهية؟")) return;
-  const open = mapDocs(await getDocs(query(collection(db, "sessions"), where("status", "==", "open")))); let n = 0;
-  for (const s of open) if (s.endsAt.toMillis() + 60 * 60000 < Date.now()) { await closeSession(s.id); n++; }
-  toast(`تم إغلاق ${n} حصة`); rerender();
+V.assistantHome = async el => {
+  const today = todayStr();
+  const mine = await getDocs(query(collection(db, "attendanceRecords"), where("markedBy", "==", A.user.uid), where("date", "==", today))).then(s => s.size).catch(() => 0);
+  el.innerHTML = `<h2>أهلًا ${esc(A.name)} 👋</h2><div class="card c"><div class="stat" style="border:0;box-shadow:none"><b>${mine}</b><span>طلاب سجّلت حضورهم اليوم</span></div>
+  <a class="btn big" href="#/scan" style="margin-top:8px">📷 تسجيل الحضور والغياب</a></div><div class="phrase">${rnd(PHRASES)}</div>`;
 };
+
+ACT.closeSession = async t => { if (!confirm("إغلاق الحصة وتسجيل الغياب لمن لم يحضر؟")) return; const n = await closeSession(t.dataset.id); toast(`تم الإغلاق — سُجّل غياب ${n} طالب`); rerender(); };
 async function closeSession(sid) {
   const sRef = doc(db, "sessions", sid), s = (await getDoc(sRef)).data();
   const [en, rc] = await Promise.all([getDocs(query(collection(db, "groupEnrollments"), where("groupId", "==", s.groupId), where("active", "==", true))), getDocs(query(collection(db, "attendanceRecords"), where("sessionId", "==", sid)))]);
@@ -277,7 +323,6 @@ async function closeSession(sid) {
   await audit("session_close", "session", sid, { absentAdded: missing.length });
   return missing.length;
 }
-ACT.reopenSession = async t => { await updateDoc(doc(db, "sessions", t.dataset.id), { status: "open", reopenedAt: serverTimestamp(), reopenedBy: A.user.uid }); await audit("session_reopen", "session", t.dataset.id); toast("تمت إعادة فتح الحصة"); await showRoster(t.dataset.id); };
 
 V.attendance = async el => {
   const date = qs("date") || todayStr();
@@ -296,9 +341,9 @@ async function showRoster(sid) {
   const [en, rc] = await Promise.all([getDocs(query(collection(db, "groupEnrollments"), where("groupId", "==", s.groupId), where("active", "==", true))), getDocs(query(collection(db, "attendanceRecords"), where("sessionId", "==", sid)))]);
   const rec = Object.fromEntries(mapDocs(rc).map(r => [r.studentId, r]));
   const rows = mapDocs(en).sort(byName), st = attStats(Object.values(rec));
-  box.innerHTML = `<div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${esc(s.groupName)} — ${esc(fmtDate(s.date))}</h3>${s.status === "open" ? `<button class="btn amb sm" data-act="closeSession" data-id="${esc(sid)}">إغلاق الحصة وتسجيل الغياب</button>` : `<button class="btn ghost sm" data-act="reopenSession" data-id="${esc(sid)}">إعادة فتح</button>`}</div>
+  box.innerHTML = `<div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${esc(s.groupName)} — ${esc(fmtDate(s.date))}</h3></div>
   <div class="row sm" style="margin:8px 0"><span class="chip">المتوقع ${rows.length}</span><span class="chip ok">حاضر ${st.p}</span><span class="chip bad">غائب ${st.a}</span><span class="chip warn">مستأذن ${st.e}</span><span class="chip">لم يُسجَّل ${rows.filter(r => !rec[r.studentId]).length}</span></div>
-  <div class="tw"><table><thead><tr><th>الطالب</th><th>الحالة</th><th>تسجيل يدوي</th></tr></thead><tbody>${rows.map(r => { const x = rec[r.studentId]; return `<tr><td>${esc(r.studentName)}</td><td>${x ? statusChip(x.status) : `<span class="chip">لم يُسجَّل</span>`}${x && x.source === "edit" ? ` <span class="sm mut">(معدّل)</span>` : ""}</td><td><div class="row" style="gap:4px">${["present", "excused", "absent"].map(k => `<button class="btn sm ${k === "present" ? "" : k === "absent" ? "red" : "amb"} ${x && x.status === k ? "" : "ghost"}" style="${k === "absent" && !(x && x.status === k) ? "color:var(--red);border-color:var(--red)" : k === "excused" && !(x && x.status === k) ? "color:var(--amb);border-color:var(--amb)" : ""}" data-act="mark" data-sid="${esc(sid)}" data-stu="${esc(r.studentId)}" data-st="${k}">${k === "present" ? "حاضر" : k === "absent" ? "غائب" : "مستأذن"}</button>`).join("")}</div></td></tr>`; }).join("") || `<tr><td colspan=3 class="empty">لا يوجد طلاب مسجلون في المجموعة</td></tr>`}</tbody></table></div></div>`;
+  <div class="tw"><table><thead><tr><th>الطالب</th><th>الحالة</th><th>تسجيل يدوي</th></tr></thead><tbody>${rows.map(r => { const x = rec[r.studentId]; return `<tr><td>${esc(r.studentName)}</td><td>${x ? statusChip(x.status) : `<span class="chip">لم يُسجَّل</span>`}</td><td><div class="row" style="gap:4px">${["present", "excused", "absent"].map(k => `<button class="btn sm ${k === "present" ? "" : k === "absent" ? "red" : "amb"} ${x && x.status === k ? "" : "ghost"}" style="${k === "absent" && !(x && x.status === k) ? "color:var(--red);border-color:var(--red)" : k === "excused" && !(x && x.status === k) ? "color:var(--amb);border-color:var(--amb)" : ""}" data-act="mark" data-sid="${esc(sid)}" data-stu="${esc(r.studentId)}" data-st="${k}">${k === "present" ? "حاضر" : k === "absent" ? "غائب" : "مستأذن"}</button>`).join("")}</div></td></tr>`; }).join("") || `<tr><td colspan=3 class="empty">لا يوجد طلاب مسجلون في المجموعة</td></tr>`}</tbody></table></div></div>`;
 }
 ACT.mark = async t => { await markAttendance(t.dataset.sid, t.dataset.stu, t.dataset.st); await showRoster(t.dataset.sid); };
 async function markAttendance(sid, stuId, status) {
@@ -329,7 +374,7 @@ V.scan = async el => {
     </div>
     
     <div class="note" style="margin-top:16px;text-align:right; font-size:0.9rem;">
-      <b>ملاحظة:</b> إذا لم تعمل الكاميرا المباشرة (بسبب قيود المتصفح أو لأن الموقع غير مستضاف بـ HTTPS)، استخدم الزر أدناه لفتح كاميرا الموبايل وتصوير الكود، وسيتم قراءته فوراً.
+      <b>ملاحظة:</b> إذا لم تعمل الكاميرا المباشرة، استخدم الزر أدناه لفتح كاميرا الموبايل وتصوير الكود، وسيتم قراءته فوراً.
     </div>
     
     <label class="btn ghost" style="width:100%; margin-top:8px; cursor:pointer; display:flex; align-items:center; gap:8px;">
@@ -422,13 +467,36 @@ async function processScan(text) {
   base.hist = await recentRecords(stu.id);
   return { kind: "ok", status: "present", ...base };
 }
+
+// تصميم كارت التور الفخم
 function stuCard(r) {
   const s = r.stu; if (!s) return "";
-  return `<dl class="kv" style="margin-top:10px"><dt>الاسم</dt><dd>${esc(s.name)}</dd><dt>كود الطالب</dt><dd>${esc(s.code)}</dd><dt>تليفون الطالب</dt><dd dir="ltr" style="text-align:right">${esc(s.phone)}</dd><dt>تليفون ولي الأمر</dt><dd dir="ltr" style="text-align:right">${esc(s.parentPhone)}</dd><dt>السنة</dt><dd>${esc(s.grade)}</dd>
-  ${r.g ? `<dt>السنتر</dt><dd>${esc(r.center)}</dd><dt>المجموعة</dt><dd>${esc(r.g.name)}</dd><dt>موعد الحصة</dt><dd>${esc(fmtTime(r.g.start))} – ${esc(fmtTime(r.g.end))}</dd>` : ""}
-  ${r.status ? `<dt>حالة الحضور</dt><dd>${statusChip(r.status)}</dd>` : ""}</dl>
-  <h3 style="margin-top:14px">آخر 4 حصص</h3>${r.hist.length ? r.hist.map(x => `<div class="row" style="justify-content:space-between;padding:3px 0"><span>${esc(fmtDate(x.date))}</span>${statusChip(x.status)}</div>`).join("") : `<div class="mut">لا يوجد سجل سابق</div>`}`;
+  return `<div class="fancy-card">
+    <div class="fancy-header">
+      <div class="avatar-circle">${esc(s.name.charAt(0))}</div>
+      <div>
+        <h3 style="margin:0; color:var(--g); font-size:1.3rem;">${esc(s.name)}</h3>
+        <div class="chip ok">${esc(s.grade)}</div>
+      </div>
+    </div>
+    <dl class="fancy-kv">
+      <dt>كود الطالب</dt><dd>${esc(s.code)}</dd>
+      <dt>تليفون الطالب</dt><dd dir="ltr" style="text-align:right">${esc(s.phone)}</dd>
+      <dt>تليفون ولي الأمر</dt><dd dir="ltr" style="text-align:right">${esc(s.parentPhone)}</dd>
+    </dl>
+    ${r.g ? `<div style="margin-top:12px; padding-top:12px; border-top:1px dashed #bbf7d0;">
+      <dl class="fancy-kv">
+        <dt>السنتر</dt><dd>${esc(r.center)}</dd>
+        <dt>المجموعة</dt><dd>${esc(r.g.name)}</dd>
+        <dt>الموعد</dt><dd>${esc(fmtTime(r.g.start))} - ${esc(fmtTime(r.g.end))}</dd>
+      </dl>
+    </div>` : ""}
+    ${r.status ? `<div style="margin-top:12px; text-align:center;">${statusChip(r.status)}</div>` : ""}
+  </div>
+  <h3 style="margin-top:14px; border-bottom:2px solid var(--line); padding-bottom:5px;">آخر 4 حصص</h3>
+  <div class="list">${r.hist.length ? r.hist.map(x => `<div><span>${esc(fmtDate(x.date))}</span>${statusChip(x.status)}</div>`).join("") : `<div class="mut">لا يوجد سجل سابق</div>`}</div>`;
 }
+
 function hwBlock(r) {
   if (!r.hw) return "";
   return `<h3 style="margin-top:14px">متابعة الواجب</h3>${r.hw.length ? r.hw.map(({ h, t }) => `<div class="card" style="margin-top:8px;padding:10px"><b>${esc(h.title)}</b><div class="row" style="margin-top:6px" data-hw="${esc(h.id)}">
@@ -442,7 +510,7 @@ function showScanResult(r) {
   else if (r.kind === "closed") head = `<div class="okmark warn">!</div><h3 class="c">الحصة مغلقة. لم يُسجَّل حضور.</h3>`;
   else if (r.kind === "nosession") head = `<div class="okmark warn">!</div><h3 class="c">لا توجد حصة مطابقة الآن لمجموعة الطالب.</h3>`;
   else head = `<div class="okmark bad">✕</div><h3 class="c" style="color:var(--red)">${esc(r.msg)}</h3>`;
-  $("#result").innerHTML = `<div class="card">${head}${stuCard(r)}${r.kind === "nosession" && r.groups.length ? `<div class="sm mut">مجموعاته: ${r.groups.map(g => esc(g.name)).join(" • ")}</div>` : ""}${hwBlock(r)}<button class="btn big" style="margin-top:16px" data-act="nextScan">📷 مسح الطالب التالي</button></div>`;
+  $("#result").innerHTML = `<div class="card" style="background:transparent; box-shadow:none; border:none; padding:0;">${head}${stuCard(r)}${r.kind === "nosession" && r.groups.length ? `<div class="sm mut">مجموعاته: ${r.groups.map(g => esc(g.name)).join(" • ")}</div>` : ""}${hwBlock(r)}<button class="btn big" style="margin-top:16px" data-act="nextScan">📷 مسح الطالب التالي</button></div>`;
   $("#result").scrollIntoView({ behavior: "smooth" });
 }
 ACT.hw = async t => {
@@ -623,7 +691,13 @@ async function examRoster(e) {
 }
 ACT.examScores = async t => {
   const e = A.examList.find(x => x.id === t.dataset.id), { stu, res } = await examRoster(e);
-  const m = openModal("درجات: " + e.name + " (من " + e.total + ")", `<form data-submit="scoresSave"><div class="tw"><table><thead><tr><th>الطالب</th><th>الدرجة</th></tr></thead><tbody>${stu.map(s => `<tr><td>${esc(s.studentName)}</td><td><input type="number" step="0.25" min="0" max="${esc(e.total)}" name="s_${esc(s.studentId)}" data-n="${esc(s.studentName)}" data-g="${esc(s.groupId)}" value="${res[s.studentId] ? esc(res[s.studentId].score) : ""}" style="width:110px"></td></tr>`).join("") || `<tr><td class="empty">لا يوجد طلاب</td></tr>`}</tbody></table></div><button class="btn" type="submit" style="margin-top:12px">حفظ الدرجات</button></form>`, true);
+  const m = openModal("درجات: " + e.name + " (من " + e.total + ")", `<form data-submit="scoresSave">
+    <div class="tw"><table><thead><tr><th>الطالب</th><th>الدرجة</th></tr></thead>
+    <tbody>${stu.map(s => `<tr>
+      <td>${esc(s.studentName)}</td>
+      <td><input type="number" step="0.25" min="0" max="${esc(e.total)}" name="s_${esc(s.studentId)}" data-n="${esc(s.studentName)}" data-g="${esc(s.groupId)}" value="${res[s.studentId] ? esc(res[s.studentId].score) : ""}" style="width:80px; text-align:center; font-size:1.1rem; font-weight:bold; padding:4px; border:2px solid var(--g2);"></td>
+    </tr>`).join("") || `<tr><td class="empty">لا يوجد طلاب</td></tr>`}</tbody></table></div>
+    <button class="btn" type="submit" style="margin-top:12px; width:100%;">حفظ الدرجات</button></form>`, true);
   const f = $("form", m); f.dataset.id = e.id; f._res = res;
 };
 ACT.scoresSave = async f => {
@@ -659,15 +733,29 @@ V.notifs = async el => {
   const ns = mapDocs(await getDocs(query(collection(db, "notifications"), orderBy("createdAt", "desc"), limit(30))));
   const reads = await Promise.all(ns.map(n => getCountFromServer(query(collection(db, "inbox"), where("notifId", "==", n.id), where("read", "==", true))).then(s => s.data().count).catch(() => 0)));
   const grades = [...new Set(A.groups.map(g => g.grade))].filter(Boolean);
+  
   el.innerHTML = `<h2>الإشعارات</h2><div class="card"><h3>إشعار جديد</h3><form data-submit="notifSend"><label>العنوان</label><input name="title" required maxlength="120"><label>النص</label><textarea name="body" required maxlength="1000"></textarea>
   <label>النوع</label><select name="type"><option value="general">عام</option><option value="alert">تنبيه</option><option value="cancel">إلغاء/تأجيل حصة</option><option value="result">نتيجة</option></select>
   <label>الفئة المستهدفة</label><div class="chk"><input type="checkbox" name="all" id="nall"><label for="nall"><b>جميع الطلاب</b></label></div>
   <div><div class="sm b">سنوات دراسية</div><div class="checks">${grades.map((g, i) => `<span class="chk"><input type="checkbox" name="gr_${i}" value="${esc(g)}" id="ngr${i}"><label for="ngr${i}">${esc(g)}</label></span>`).join("")}</div>
-  <div class="sm b">سناتر</div><div class="checks">${A.centers.map(c => `<span class="chk"><input type="checkbox" name="c_${esc(c.id)}" id="nc${esc(c.id)}"><label for="nc${esc(c.id)}">${esc(c.name)}</label></span>`).join("")}</div>
-  <div class="sm b">مجموعات</div><div class="checks">${activeGroups().map(g => `<span class="chk"><input type="checkbox" name="g_${esc(g.id)}" id="ng${esc(g.id)}"><label for="ng${esc(g.id)}">${esc(g.name)}</label></span>`).join("")}</div></div>
+  <div class="sm b">سناتر</div><div class="checks" id="center-checks">${A.centers.map(c => `<span class="chk"><input type="checkbox" class="center-chk" value="${esc(c.id)}" name="c_${esc(c.id)}" id="nc${esc(c.id)}"><label for="nc${esc(c.id)}">${esc(c.name)}</label></span>`).join("")}</div>
+  <div class="sm b">مجموعات</div><div class="checks" id="group-checks">${activeGroups().map(g => `<span class="chk"><input type="checkbox" name="g_${esc(g.id)}" id="ng${esc(g.id)}"><label for="ng${esc(g.id)}">${esc(g.name)}</label></span>`).join("")}</div></div>
   <button class="btn" type="submit" style="margin-top:8px">إرسال</button></form></div>
   <div class="card"><h3>الإشعارات السابقة</h3>${ns.length ? `<div class="tw"><table><thead><tr><th>العنوان</th><th>وقت الإرسال</th><th>المستهدفون</th><th>قرؤوه</th></tr></thead><tbody>${ns.map((n, i) => `<tr><td><b>${esc(n.title)}</b><div class="sm mut">${esc(n.targetText || "")}</div></td><td class="sm">${esc(fmtTs(n.createdAt))}</td><td>${esc(n.targetCount)}</td><td>${reads[i]}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">لم يُرسل أي إشعار بعد</div>`}</div>`;
+
+  // كود فلترة المجموعات عند اختيار سنتر معين
+  $$(".center-chk").forEach(chk => {
+    chk.addEventListener("change", () => {
+      const selectedCenters = Array.from($$(".center-chk:checked")).map(c => c.value);
+      let filtered = activeGroups();
+      if (selectedCenters.length > 0) {
+        filtered = activeGroups().filter(g => selectedCenters.includes(g.centerId));
+      }
+      $("#group-checks").innerHTML = filtered.map(g => `<span class="chk"><input type="checkbox" name="g_${esc(g.id)}" id="ng${esc(g.id)}"><label for="ng${esc(g.id)}">${esc(g.name)}</label></span>`).join("");
+    });
+  });
 };
+
 ACT.notifSend = async f => {
   const v = formData(f), all = !!v.all, grs = Object.keys(v).filter(k => k.startsWith("gr_")).map(k => v[k]), cs = Object.keys(v).filter(k => k.startsWith("c_")).map(k => k.slice(2)), gs = Object.keys(v).filter(k => k.startsWith("g_")).map(k => k.slice(2));
   if (!all && !grs.length && !cs.length && !gs.length) throw { msg: "اختر الفئة المستهدفة" };
@@ -691,18 +779,36 @@ V.assistants = async el => {
   const cnt = await Promise.all(as.map(a => getDocs(query(collection(db, "attendanceRecords"), where("markedBy", "==", a.id), where("date", "==", today))).then(s => s.size).catch(() => 0)));
   el.innerHTML = `<div class="row" style="justify-content:space-between"><h2>المساعدون والمشرفون</h2><button class="btn" data-act="asstForm">+ إنشاء حساب مساعد</button></div>
   ${as.map((a, i) => `<div class="card"><div class="row" style="justify-content:space-between"><div><h3 style="margin:0">${esc(a.name)} ${a.active ? `<span class="chip ok">نشط</span>` : `<span class="chip">معطّل</span>`}</h3><div class="sm mut" dir="ltr" style="text-align:right">${esc(a.email)}</div><div class="sm">سجّل اليوم: <b>${cnt[i]}</b> طالب</div></div>
-  <div class="row"><button class="btn ghost sm" data-act="asstLog" data-id="${esc(a.id)}">عملياته</button><button class="btn ghost sm" data-act="asstReset" data-email="${esc(a.email)}">إعادة تعيين كلمة المرور</button><button class="btn sm ${a.active ? "red" : ""}" data-act="asstToggle" data-id="${esc(a.id)}" data-v="${a.active ? 0 : 1}">${a.active ? "تعطيل" : "تفعيل"}</button></div></div></div>`).join("") || `<div class="empty">لا يوجد مساعدون بعد</div>`}`;
+  <div class="row"><button class="btn ghost sm" data-act="asstLog" data-id="${esc(a.id)}">عملياته</button><button class="btn sm ${a.active ? "red" : ""}" data-act="asstToggle" data-id="${esc(a.id)}" data-v="${a.active ? 0 : 1}">${a.active ? "تعطيل" : "تفعيل"}</button></div></div></div>`).join("") || `<div class="empty">لا يوجد مساعدون بعد</div>`}`;
 };
-ACT.asstForm = () => openModal("حساب مساعد جديد", `<form data-submit="asstSave"><label>اسم المساعد</label><input name="name" required><label>البريد الإلكتروني للدخول</label><input name="email" type="email" dir="ltr" required><label>كلمة مرور مبدئية (6 أحرف)</label><input name="pw" type="password" minlength="6" required><button class="btn" type="submit">إنشاء</button></form>`);
+
+// إنشاء مساعد جديد بشكل مباشر (بدون Firebase Auth)
+ACT.asstForm = () => openModal("حساب مساعد جديد", `<form data-submit="asstSave"><label>اسم المساعد</label><input name="name" required><label>البريد الإلكتروني للدخول</label><input name="email" type="email" dir="ltr" required><label>كلمة المرور</label><input name="pw" type="text" minlength="6" required><div class="note sm" style="margin-top:10px">سيتم حفظ الباسورد كما هو في قاعدة البيانات لتسجيل الدخول مباشرة.</div><button class="btn" type="submit">إنشاء</button></form>`);
+
 ACT.asstSave = async f => {
-  const v = formData(f), email = v.email.trim().toLowerCase();
-  const sec = initializeApp(firebaseConfig, "sec" + Date.now()); let uid;
-  try { const cr = await createUserWithEmailAndPassword(getAuth(sec), email, v.pw); uid = cr.user.uid; await signOut(getAuth(sec)); } finally { }
-  await setDoc(doc(db, "users", uid), { name: v.name.trim(), email, role: "assistant", active: true, createdAt: serverTimestamp(), createdBy: A.user.uid });
-  await audit("assistant_create", "user", uid, { email }); closeModals(); toast("تم إنشاء الحساب"); rerender();
+  const v = formData(f);
+  const email = v.email.trim().toLowerCase();
+  
+  // التأكد إن الإيميل مش مستخدم
+  const q = query(collection(db, "users"), where("email", "==", email));
+  const snap = await getDocs(q);
+  if (!snap.empty) throw { msg: "هذا البريد الإلكتروني مسجل بالفعل" };
+
+  // الحفظ المباشر في قاعدة البيانات
+  await addDoc(collection(db, "users"), {
+    name: v.name.trim(),
+    email: email,
+    password: v.pw, // حفظ الباسورد كما هو
+    role: "assistant",
+    active: true,
+    createdAt: serverTimestamp(),
+    createdBy: A.user.uid
+  });
+  
+  await audit("assistant_create", "user", "new", { email }); closeModals(); toast("تم إنشاء الحساب بنجاح"); rerender();
 };
+
 ACT.asstToggle = async t => { await updateDoc(doc(db, "users", t.dataset.id), { active: t.dataset.v === "1" }); await audit("assistant_toggle", "user", t.dataset.id, { active: t.dataset.v === "1" }); rerender(); };
-ACT.asstReset = async t => { await sendPasswordResetEmail(auth, t.dataset.email); toast("تم إرسال رابط إعادة تعيين كلمة المرور"); };
 ACT.asstLog = async t => {
   const rs = sortRecs(mapDocs(await getDocs(query(collection(db, "attendanceRecords"), where("markedBy", "==", t.dataset.id))))).slice(0, 100);
   openModal("آخر عمليات التسجيل", `<div class="tw"><table><tbody>${rs.map(r => `<tr><td>${esc(r.studentName)}</td><td>${esc(fmtDate(r.date))}</td><td>${statusChip(r.status)}</td><td class="sm mut">${esc(fmtTs(r.markedAt))}</td></tr>`).join("") || `<tr><td class="empty">لا توجد عمليات</td></tr>`}</tbody></table></div>`, true);
@@ -744,30 +850,4 @@ ACT.rrun = async () => {
     const rr = tr.filter(r => okG(r.groupId)), by = [...new Set(rr.map(r => r.homeworkId))].map(id => { const x = rr.filter(r => r.homeworkId === id), yes = x.filter(r => r.done).length; return [esc((hs.find(h => h.id === id) || {}).title || id), yes, x.length - yes, Math.round(yes / x.length * 100) + "%"]; });
     A.rcsv = [["الواجب", "حلّوه", "لم يحلّوه", "النسبة"], ...by]; out.innerHTML = `<h3>متابعة الواجبات</h3>` + tbl(["الواجب", "حلّوه", "لم يحلّوه", "النسبة"], by);
   } else if (tab === "ex") {
-    const rs = mapDocs(await getDocs(query(collection(db, "examResults"), where("date", ">=", f), where("date", "<=", to)))).filter(r => okG(r.groupId)), by = [...new Set(rs.map(r => r.examId))].map(id => { const x = rs.filter(r => r.examId === id), avg = x.reduce((a, r) => a + r.score, 0) / x.length; return [esc(x[0].examName), esc(fmtDate(x[0].date)), x.length, avg.toFixed(1) + " / " + x[0].total, Math.round(avg / x[0].total * 100) + "%", Math.max(...x.map(r => r.score))]; });
-    A.rcsv = [["الامتحان", "التاريخ", "عدد النتائج", "المتوسط", "النسبة", "الأعلى"], ...by]; out.innerHTML = `<h3>نتائج الامتحانات</h3>` + tbl(["الامتحان", "التاريخ", "عدد النتائج", "المتوسط", "النسبة", "الأعلى"], by);
-  } else {
-    const [sts, en] = await Promise.all([loadStudents(true), getDocs(query(collection(db, "groupEnrollments"), where("active", "==", true))).then(mapDocs)]);
-    const rows = activeGroups().filter(gr => okG(gr.id)).map(gr => [esc(gr.name), esc((cById(gr.centerId) || {}).name || ""), esc(gr.grade), en.filter(e => e.groupId === gr.id).length]);
-    A.rcsv = [["المجموعة", "السنتر", "السنة", "عدد الطلاب"], ...rows];
-    out.innerHTML = `<div class="grid g4"><div class="stat"><b>${sts.length}</b><span>إجمالي الطلاب المسجلين</span></div><div class="stat ok"><b>${sts.filter(s => s.active).length}</b><span>نشطون</span></div><div class="stat"><b>${A.centers.length}</b><span>سناتر</span></div><div class="stat"><b>${activeGroups().length}</b><span>مجموعات</span></div></div><h3 style="margin-top:14px">أعداد الطلاب في المجموعات</h3>` + tbl(["المجموعة", "السنتر", "السنة", "عدد الطلاب"], rows);
-  }
-};
-
-V.settings = async el => {
-  const logs = mapDocs(await getDocs(query(collection(db, "auditLogs"), orderBy("at", "desc"), limit(40))));
-  el.innerHTML = `<h2>إعدادات المنصة</h2><div class="card"><dl class="kv"><dt>المنصة</dt><dd>المصطفى في الرياضيات</dd><dt>المدرس</dt><dd>الأستاذ محمد مصطفى</dd><dt>المنطقة الزمنية</dt><dd>Africa/Cairo</dd><dt>تسجيل الحضور</dt><dd>من 120 دقيقة قبل الحصة حتى 60 دقيقة بعد نهايتها</dd></dl>
-  <div class="row" style="margin-top:10px"><button class="btn ghost" data-act="closeAllEnded">إغلاق كل الحصص المنتهية</button></div></div>
-  <div class="card"><h3>سجل التدقيق (آخر 40 عملية)</h3><div class="tw"><table><thead><tr><th>الوقت</th><th>المنفّذ</th><th>العملية</th><th>التفاصيل</th></tr></thead><tbody>${logs.map(l => `<tr><td class="sm">${esc(fmtTs(l.at))}</td><td>${esc(l.actorName)}</td><td>${esc(l.action)}</td><td class="sm mut">${esc(l.reason || "")} ${esc(JSON.stringify(l.details || {}).slice(0, 120))}</td></tr>`).join("") || `<tr><td colspan=4 class="empty">—</td></tr>`}</tbody></table></div></div>`;
-};
-
-// Initialize App based on local storage
-if (localStorage.getItem("isAdminLoggedIn") === "true") {
-  loadBase().then(() => { renderShell(); route(); });
-} else {
-  renderLogin();
-}
-
-</script>
-</body>
-</html>
+    const rs = mapDocs(await getDocs(query(collection(db, "examResults"), where("date", ">=", f), where("date", "<=", to)))).filter(r => okG(r.groupId)), by = [...new Set(rs.map(r => r.examId))].map(id => { const x = rs.filter(r => r.examId === id), avg = x.reduce((a, r) => a + r.score, 0) / x.length; return [esc(x[0].examName), esc(fmtDate(x[0].date)), x.length, avg.toFixed(1) + " / " + x[

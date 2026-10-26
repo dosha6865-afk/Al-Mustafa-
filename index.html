@@ -47,6 +47,7 @@ table{width:100%;border-collapse:collapse;font-size:.93rem}th,td{padding:9px 8px
 .tw{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:12px;background:#fff}
 .auth{max-width:440px;margin:24px auto}
 .err{background:var(--redl);color:var(--red);padding:10px 12px;border-radius:12px;font-weight:700;margin:10px 0}
+.note{background:var(--ambl);color:#78350f;padding:10px 12px;border-radius:12px;font-weight:600;margin:10px 0}
 .empty{text-align:center;color:var(--mut);padding:26px 10px}
 .spin{width:30px;height:30px;border:4px solid var(--gl2);border-top-color:var(--g2);border-radius:50%;animation:s 1s linear infinite;margin:40px auto}@keyframes s{to{transform:rotate(360deg)}}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 18px;border-radius:12px;z-index:9999;font-weight:700;max-width:92vw;box-shadow:var(--sh)}
@@ -55,8 +56,22 @@ table{width:100%;border-collapse:collapse;font-size:.93rem}th,td{padding:9px 8px
 .modal{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;box-shadow:var(--sh)}.modal.wide{max-width:900px}
 .mh{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff}.mb{padding:16px 18px 24px}
 .x{border:0;background:#f1f5f9;border-radius:10px;width:34px;height:34px;font-size:16px;cursor:pointer}
+@media(min-width:700px){.mback{align-items:center}.modal{border-radius:22px}}
+.big-code{font-size:2.2rem;font-weight:800;letter-spacing:.12em;color:var(--g);direction:ltr;display:inline-block}
+.qrbox{background:#fff;border:2px dashed var(--g3);border-radius:20px;padding:16px;text-align:center}
+.qrbox img{width:min(78vw,300px);height:auto;image-rendering:pixelated}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0 14px}.bar>*{flex:0 0 auto}.bar .grow{flex:1 1 200px}
+.pbar{height:10px;background:#e2e8f0;border-radius:99px;overflow:hidden}.pbar i{display:block;height:100%;background:var(--g2)}
 .phrase{color:var(--g);font-weight:800;text-align:center;padding:18px 8px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.tabs button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font:inherit;font-weight:700;cursor:pointer}.tabs button.on{background:var(--g2);color:#fff;border-color:var(--g2)}
+.list>div{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}.list>div:last-child{border:0}
+.unread{border-inline-start:5px solid var(--g2)}
+#reader{width:100%;max-width:460px;margin:0 auto;border-radius:18px;overflow:hidden;background:#000;min-height:260px}
+.okmark{width:84px;height:84px;border-radius:50%;background:var(--g2);color:#fff;display:grid;place-items:center;font-size:52px;margin:0 auto 6px;animation:pop .35s}@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.okmark.bad{background:var(--red)}.okmark.warn{background:var(--amb)}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px}.kv dt{color:var(--mut);font-weight:700}.kv dd{margin:0;font-weight:700}
+footer.f{text-align:center;color:var(--mut);padding:20px;font-size:.85rem}
+@media print{header.top,nav.pills,.noprint,.toast,footer.f{display:none!important}body{background:#fff}main{padding:0}.card,.stat{box-shadow:none}.tw{max-height:none;overflow:visible}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
@@ -64,7 +79,6 @@ table{width:100%;border-collapse:collapse;font-size:.93rem}th,td{padding:9px 8px
 <div id="app"><div class="spin"></div></div>
 <noscript><p style="padding:20px">لازم تفعّل JavaScript لتشغيل الموقع.</p></noscript>
 <script type="module">
-// إنذار لأي خطأ
 window.addEventListener("error", e => { alert("خطأ في الكود: " + e.message); });
 window.addEventListener("unhandledrejection", e => { alert("خطأ في الاتصال: " + (e.reason?.message || e.reason)); });
 
@@ -242,39 +256,273 @@ V.dashboard = async el => {
   listen(query(collection(db, "sessions"), where("status", "==", "open")), l => { D.open = l; draw(); });
 };
 
+ACT.closeSession = async t => { if (!confirm("إغلاق الحصة وتسجيل الغياب لمن لم يحضر؟")) return; const n = await closeSession(t.dataset.id); toast(`تم الإغلاق — سُجّل غياب ${n} طالب`); rerender(); };
+ACT.closeAllEnded = async () => {
+  if (!confirm("إغلاق كل الحصص المنتهية؟")) return;
+  const open = mapDocs(await getDocs(query(collection(db, "sessions"), where("status", "==", "open")))); let n = 0;
+  for (const s of open) if (s.endsAt.toMillis() + 60 * 60000 < Date.now()) { await closeSession(s.id); n++; }
+  toast(`تم إغلاق ${n} حصة`); rerender();
+};
+async function closeSession(sid) {
+  const sRef = doc(db, "sessions", sid), s = (await getDoc(sRef)).data();
+  const [en, rc] = await Promise.all([getDocs(query(collection(db, "groupEnrollments"), where("groupId", "==", s.groupId), where("active", "==", true))), getDocs(query(collection(db, "attendanceRecords"), where("sessionId", "==", sid)))]);
+  const have = new Set(rc.docs.map(d => d.data().studentId));
+  const missing = en.docs.map(d => d.data()).filter(e => !have.has(e.studentId) && !(e.joinedAt && e.joinedAt.toMillis() > s.endsAt.toMillis()));
+  for (let i = 0; i < missing.length; i += 400) {
+    const b = writeBatch(db);
+    missing.slice(i, i + 400).forEach(e => b.set(doc(db, "attendanceRecords", `${sid}_${e.studentId}`), { sessionId: sid, groupId: s.groupId, centerId: s.centerId, studentId: e.studentId, studentName: e.studentName || "", date: s.date, status: "absent", source: "close", markedBy: A.user.uid, markedByName: A.name, markedAt: serverTimestamp() }));
+    await b.commit();
+  }
+  await updateDoc(sRef, { status: "closed", closedAt: serverTimestamp(), closedBy: A.user.uid });
+  await audit("session_close", "session", sid, { absentAdded: missing.length });
+  return missing.length;
+}
+ACT.reopenSession = async t => { await updateDoc(doc(db, "sessions", t.dataset.id), { status: "open", reopenedAt: serverTimestamp(), reopenedBy: A.user.uid }); await audit("session_reopen", "session", t.dataset.id); toast("تمت إعادة فتح الحصة"); await showRoster(t.dataset.id); };
+
+V.attendance = async el => {
+  const date = qs("date") || todayStr();
+  el.innerHTML = `<h2>الحضور والغياب</h2><div class="bar"><input type="date" id="ad" value="${date}" style="width:auto"><a class="btn" href="#/scan">📷 مسح QR</a></div><div id="sl"><div class="spin"></div></div><div id="roster"></div>`;
+  $("#ad").addEventListener("change", e => { location.hash = `#/attendance?date=${e.target.value}`; });
+  if (date === todayStr()) await ensureToday(date);
+  const ss = mapDocs(await getDocs(query(collection(db, "sessions"), where("date", "==", date)))).sort((a, b) => a.startsAt.seconds - b.startsAt.seconds);
+  $("#sl").innerHTML = ss.length ? `<div class="grid g2">${ss.map(s => `<div class="card"><b>${esc(s.groupName)}</b> <span class="mut">— ${esc(s.centerName)}</span><div class="sm mut">${esc(s.startsAt.toDate().toLocaleTimeString("ar-EG", { timeZone: "Africa/Cairo", hour: "numeric", minute: "2-digit" }))} – ${esc(s.endsAt.toDate().toLocaleTimeString("ar-EG", { timeZone: "Africa/Cairo", hour: "numeric", minute: "2-digit" }))}</div>
+    <div class="row" style="margin-top:8px">${s.status === "open" ? `<span class="chip warn">مفتوحة</span>` : `<span class="chip ok">مغلقة</span>`}<button class="btn sm" data-act="openRoster" data-id="${esc(s.id)}">فتح الكشف</button></div></div>`).join("")}</div>` : `<div class="empty">لا توجد حصص في هذا اليوم</div>`;
+  if (qs("s")) showRoster(qs("s"));
+};
+ACT.openRoster = t => showRoster(t.dataset.id);
+async function showRoster(sid) {
+  const box = $("#roster"); box.innerHTML = `<div class="spin"></div>`; box.scrollIntoView({ behavior: "smooth" });
+  const s = { id: sid, ...(await getDoc(doc(db, "sessions", sid))).data() };
+  const [en, rc] = await Promise.all([getDocs(query(collection(db, "groupEnrollments"), where("groupId", "==", s.groupId), where("active", "==", true))), getDocs(query(collection(db, "attendanceRecords"), where("sessionId", "==", sid)))]);
+  const rec = Object.fromEntries(mapDocs(rc).map(r => [r.studentId, r]));
+  const rows = mapDocs(en).sort(byName), st = attStats(Object.values(rec));
+  box.innerHTML = `<div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${esc(s.groupName)} — ${esc(fmtDate(s.date))}</h3>${s.status === "open" ? `<button class="btn amb sm" data-act="closeSession" data-id="${esc(sid)}">إغلاق الحصة وتسجيل الغياب</button>` : `<button class="btn ghost sm" data-act="reopenSession" data-id="${esc(sid)}">إعادة فتح</button>`}</div>
+  <div class="row sm" style="margin:8px 0"><span class="chip">المتوقع ${rows.length}</span><span class="chip ok">حاضر ${st.p}</span><span class="chip bad">غائب ${st.a}</span><span class="chip warn">مستأذن ${st.e}</span><span class="chip">لم يُسجَّل ${rows.filter(r => !rec[r.studentId]).length}</span></div>
+  <div class="tw"><table><thead><tr><th>الطالب</th><th>الحالة</th><th>تسجيل يدوي</th></tr></thead><tbody>${rows.map(r => { const x = rec[r.studentId]; return `<tr><td>${esc(r.studentName)}</td><td>${x ? statusChip(x.status) : `<span class="chip">لم يُسجَّل</span>`}${x && x.source === "edit" ? ` <span class="sm mut">(معدّل)</span>` : ""}</td><td><div class="row" style="gap:4px">${["present", "excused", "absent"].map(k => `<button class="btn sm ${k === "present" ? "" : k === "absent" ? "red" : "amb"} ${x && x.status === k ? "" : "ghost"}" style="${k === "absent" && !(x && x.status === k) ? "color:var(--red);border-color:var(--red)" : k === "excused" && !(x && x.status === k) ? "color:var(--amb);border-color:var(--amb)" : ""}" data-act="mark" data-sid="${esc(sid)}" data-stu="${esc(r.studentId)}" data-st="${k}">${k === "present" ? "حاضر" : k === "absent" ? "غائب" : "مستأذن"}</button>`).join("")}</div></td></tr>`; }).join("") || `<tr><td colspan=3 class="empty">لا يوجد طلاب مسجلون في المجموعة</td></tr>`}</tbody></table></div></div>`;
+}
+ACT.mark = async t => { await markAttendance(t.dataset.sid, t.dataset.stu, t.dataset.st); await showRoster(t.dataset.sid); };
+async function markAttendance(sid, stuId, status) {
+  const s = (await getDoc(doc(db, "sessions", sid))).data(), ref = doc(db, "attendanceRecords", `${sid}_${stuId}`), ex = await getDoc(ref);
+  if (ex.exists()) {
+    if (ex.data().status === status) return;
+    const reason = prompt("سبب التعديل (إجباري):"); if (!reason || !reason.trim()) { toast("لم يتم التعديل: السبب مطلوب", "err"); return; }
+    await updateDoc(ref, { status, source: "edit", reason: reason.trim(), updatedBy: A.user.uid, updatedByName: A.name, updatedAt: serverTimestamp() });
+    await audit("attendance_edit", "attendance", ref.id, { from: ex.data().status, to: status }, reason.trim());
+  } else {
+    const name = (await getDoc(doc(db, "groupEnrollments", `${stuId}_${s.groupId}`))).data()?.studentName || "";
+    await setDoc(ref, { sessionId: sid, groupId: s.groupId, centerId: s.centerId, studentId: stuId, studentName: name, date: s.date, status, source: "manual", markedBy: A.user.uid, markedByName: A.name, markedAt: serverTimestamp() });
+    if (status !== "present") await audit("attendance_manual", "attendance", ref.id, { status });
+  }
+}
+
+let scanner = null, scanLock = false, scanning = false;
+const parseQR = t => { const p = String(t).trim().split("|"); return p.length === 3 && p[0] === "MSTF1" ? { uid: p[1], token: p[2] } : null; };
+
+V.scan = async el => {
+  el.innerHTML = `<h2>تسجيل الحضور والغياب</h2>
+  <div class="card c">
+    <div id="reader" style="display:none;"></div>
+    <div id="scanmsg" class="mut" style="margin-bottom:12px">وجّه الكاميرا نحو كود QR الخاص بالطالب</div>
+    
+    <div class="row" style="justify-content:center; margin-bottom:10px;">
+      <button class="btn" data-act="startScan" id="sbtn">📷 فتح الكاميرا المباشرة</button>
+    </div>
+    
+    <div class="note" style="margin-top:16px;text-align:right; font-size:0.9rem;">
+      <b>ملاحظة:</b> إذا لم تعمل الكاميرا المباشرة (بسبب قيود المتصفح أو لأن الموقع غير مستضاف بـ HTTPS)، استخدم الزر أدناه لفتح كاميرا الموبايل وتصوير الكود، وسيتم قراءته فوراً.
+    </div>
+    
+    <label class="btn ghost" style="width:100%; margin-top:8px; cursor:pointer; display:flex; align-items:center; gap:8px;">
+      📁 تصوير الكود أو اختيار صورة من المعرض
+      <input type="file" accept="image/*" capture="environment" id="qr-file" style="display:none">
+    </label>
+  </div>
+  <div id="result"></div>`;
+
+  $("#qr-file").addEventListener("change", async (e) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    $("#result").innerHTML = `<div class="spin"></div>`;
+    try {
+      const fileScanner = new Html5Qrcode("reader");
+      const decodedText = await fileScanner.scanFile(file, false);
+      const r = await processScan(decodedText);
+      showScanResult(r);
+    } catch (error) {
+      console.error(error);
+      $("#result").innerHTML = `<div class="card"><div class="okmark bad">!</div><div class="err">لم يتم العثور على كود QR واضح في الصورة. يرجى تقريب الكود وإعادة التصوير.</div></div>`;
+    }
+    e.target.value = "";
+  });
+
+  if (window.location.protocol === "https:" || window.location.hostname === "localhost") {
+    startScan();
+  } else {
+    $("#scanmsg").innerHTML = `<div class="err">المتصفح يمنع الكاميرا المباشرة لأن الموقع غير مؤمن (HTTPS). استخدم زر تصوير الكود بالأسفل.</div>`;
+    $("#sbtn").style.display = 'none';
+  }
+};
+
+async function startScan() {
+  if (scanning) return; if (!window.Html5Qrcode) { toast("تعذر تحميل مكتبة الكاميرا، تأكد من الإنترنت", "err"); return; }
+  try {
+    $("#reader").style.display = "block";
+    scanner = new Html5Qrcode("reader"); scanLock = false;
+    await scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: (w, h) => { const s = Math.floor(Math.min(w, h) * .72); return { width: s, height: s }; } }, onDecode, () => { });
+    scanning = true; const b = $("#sbtn"); if (b) b.style.display = "none";
+  } catch (e) {
+    console.warn(e); const m = $("#scanmsg");
+    if (m) m.innerHTML = `<div class="err">تعذر تشغيل الكاميرا. اسمح للموقع باستخدام الكاميرا.</div>`;
+  }
+}
+ACT.startScan = () => startScan();
+function stopScan() { if (scanner) { const s = scanner; scanner = null; scanning = false; s.stop().then(() => s.clear()).catch(() => { }); } }
+async function onDecode(text) {
+  if (scanLock) return; scanLock = true; navigator.vibrate && navigator.vibrate(60);
+  $("#result").innerHTML = `<div class="spin"></div>`;
+  try { const r = await processScan(text); showScanResult(r); }
+  catch (e) { console.error(e); $("#result").innerHTML = `<div class="card"><div class="okmark bad">!</div><div class="err">${esc(errMsg(e))}</div><button class="btn big" data-act="nextScan">مسح التالي</button></div>`; }
+}
+ACT.nextScan = () => { $("#result").innerHTML = ""; scanLock = false; };
+async function recentRecords(stuId) { return sortRecs(mapDocs(await getDocs(query(collection(db, "attendanceRecords"), where("studentId", "==", stuId))))).slice(0, 4); }
+async function homeworkFor(stu, gid, sid, date) {
+  const hs = mapDocs(await getDocs(query(collection(db, "homework"), where("groupIds", "array-contains", gid)))).filter(h => h.status !== "ended");
+  const tr = await Promise.all(hs.map(h => getDoc(doc(db, "homeworkTracking", `${h.id}_${stu.id}`))));
+  return hs.map((h, i) => ({ h, t: tr[i].exists() ? tr[i].data() : null }));
+}
+async function processScan(text) {
+  const q = parseQR(text); if (!q) return { kind: "invalid", msg: "كود غير صالح: هذا ليس كود طالب في المنصة" };
+  let sn; try { sn = await getDoc(doc(db, "students", q.uid)); } catch (e) { return { kind: "invalid", msg: "كود غير صالح" }; }
+  if (!sn.exists() || sn.data().qrToken !== q.token) return { kind: "invalid", msg: "كود غير صالح أو غير معروف. لم يُسجَّل حضور." };
+  const stu = { id: sn.id, ...sn.data() };
+  if (!stu.active) return { kind: "invalid", msg: "حساب الطالب معطّل. لم يُسجَّل حضور.", stu };
+  const en = mapDocs(await getDocs(query(collection(db, "groupEnrollments"), where("studentId", "==", stu.id), where("active", "==", true))));
+  const now = new Date(), date = todayStr(now), dow = dowOf(date), cands = [];
+  for (const e of en) {
+    const g = gById(e.groupId); if (!g || g.active === false || !(g.days || []).includes(dow)) continue;
+    const st = cairoInstant(date, g.start), end = cairoInstant(date, g.end);
+    if (now >= new Date(st - 120 * 60000) && now <= new Date(+end + 60 * 60000)) cands.push({ g, st, end });
+  }
+  cands.sort((a, b) => Math.abs(now - a.st) - Math.abs(now - b.st));
+  const hist = await recentRecords(stu.id), center = g => (cById(g.centerId) || {}).name || "";
+  if (!cands.length) return { kind: "nosession", stu, hist, groups: en.map(e => gById(e.groupId)).filter(Boolean), centerOf: center };
+  const { g } = cands[0], sid = `${g.id}_${date}`;
+  const sess = await ensureSession(g, date);
+  const base = { stu, g, sid, date, hist, center: center(g), sess };
+  base.hw = await homeworkFor(stu, g.id, sid, date);
+  if (sess.status !== "open") return { kind: "closed", ...base };
+  const rid = `${sid}_${stu.id}`, ex = await getDoc(doc(db, "attendanceRecords", rid));
+  if (ex.exists()) return { kind: "dup", status: ex.data().status, ...base };
+  try {
+    await setDoc(doc(db, "attendanceRecords", rid), { sessionId: sid, groupId: g.id, centerId: g.centerId, studentId: stu.id, studentName: stu.name, date, status: "present", source: "qr", qrToken: q.token, markedBy: A.user.uid, markedByName: A.name, markedAt: serverTimestamp() });
+  } catch (e) {
+    const again = await getDoc(doc(db, "attendanceRecords", rid)); if (again.exists()) return { kind: "dup", status: again.data().status, ...base };
+    throw e;
+  }
+  base.hist = await recentRecords(stu.id);
+  return { kind: "ok", status: "present", ...base };
+}
+function stuCard(r) {
+  const s = r.stu; if (!s) return "";
+  return `<dl class="kv" style="margin-top:10px"><dt>الاسم</dt><dd>${esc(s.name)}</dd><dt>كود الطالب</dt><dd>${esc(s.code)}</dd><dt>تليفون الطالب</dt><dd dir="ltr" style="text-align:right">${esc(s.phone)}</dd><dt>تليفون ولي الأمر</dt><dd dir="ltr" style="text-align:right">${esc(s.parentPhone)}</dd><dt>السنة</dt><dd>${esc(s.grade)}</dd>
+  ${r.g ? `<dt>السنتر</dt><dd>${esc(r.center)}</dd><dt>المجموعة</dt><dd>${esc(r.g.name)}</dd><dt>موعد الحصة</dt><dd>${esc(fmtTime(r.g.start))} – ${esc(fmtTime(r.g.end))}</dd>` : ""}
+  ${r.status ? `<dt>حالة الحضور</dt><dd>${statusChip(r.status)}</dd>` : ""}</dl>
+  <h3 style="margin-top:14px">آخر 4 حصص</h3>${r.hist.length ? r.hist.map(x => `<div class="row" style="justify-content:space-between;padding:3px 0"><span>${esc(fmtDate(x.date))}</span>${statusChip(x.status)}</div>`).join("") : `<div class="mut">لا يوجد سجل سابق</div>`}`;
+}
+function hwBlock(r) {
+  if (!r.hw) return "";
+  return `<h3 style="margin-top:14px">متابعة الواجب</h3>${r.hw.length ? r.hw.map(({ h, t }) => `<div class="card" style="margin-top:8px;padding:10px"><b>${esc(h.title)}</b><div class="row" style="margin-top:6px" data-hw="${esc(h.id)}">
+    <button class="btn sm ${t && t.done ? "" : "ghost"}" data-act="hw" data-h="${esc(h.id)}" data-stu="${esc(r.stu.id)}" data-sid="${esc(r.sid)}" data-g="${esc(r.g.id)}" data-date="${esc(r.date)}" data-v="1">✔ حلّه</button>
+    <button class="btn sm red ${t && !t.done ? "" : "ghost"}" style="${t && !t.done ? "" : "color:var(--red);border-color:var(--red)"}" data-act="hw" data-h="${esc(h.id)}" data-stu="${esc(r.stu.id)}" data-sid="${esc(r.sid)}" data-g="${esc(r.g.id)}" data-date="${esc(r.date)}" data-v="0">✘ لم يحلّه</button></div></div>`).join("") : `<div class="mut">لا توجد واجبات مطلوبة</div>`}`;
+}
+function showScanResult(r) {
+  let head;
+  if (r.kind === "ok") head = `<div class="okmark">✓</div><h2 class="c" style="color:var(--g)">تم تسجيل الحضور</h2>`;
+  else if (r.kind === "dup") head = `<div class="okmark warn">!</div><h3 class="c">تم تسجيل حضور الطالب بالفعل في هذه الحصة.</h3>`;
+  else if (r.kind === "closed") head = `<div class="okmark warn">!</div><h3 class="c">الحصة مغلقة. لم يُسجَّل حضور.</h3>`;
+  else if (r.kind === "nosession") head = `<div class="okmark warn">!</div><h3 class="c">لا توجد حصة مطابقة الآن لمجموعة الطالب.</h3>`;
+  else head = `<div class="okmark bad">✕</div><h3 class="c" style="color:var(--red)">${esc(r.msg)}</h3>`;
+  $("#result").innerHTML = `<div class="card">${head}${stuCard(r)}${r.kind === "nosession" && r.groups.length ? `<div class="sm mut">مجموعاته: ${r.groups.map(g => esc(g.name)).join(" • ")}</div>` : ""}${hwBlock(r)}<button class="btn big" style="margin-top:16px" data-act="nextScan">📷 مسح الطالب التالي</button></div>`;
+  $("#result").scrollIntoView({ behavior: "smooth" });
+}
+ACT.hw = async t => {
+  const d = t.dataset, done = d.v === "1";
+  await setDoc(doc(db, "homeworkTracking", `${d.h}_${d.stu}`), { homeworkId: d.h, studentId: d.stu, sessionId: d.sid, groupId: d.g, date: d.date, done, recordedBy: A.user.uid, recordedByName: A.name, recordedAt: serverTimestamp() });
+  const row = t.parentElement, [y, n] = $$("button", row);
+  y.classList.toggle("ghost", !done); n.classList.toggle("ghost", done); n.style.cssText = done ? "color:var(--red);border-color:var(--red)" : ""; toast(done ? "سُجّل: حلّ الواجب ✔" : "سُجّل: لم يحل الواجب ✘");
+};
+
 V.students = async el => {
   const [sts, en] = await Promise.all([loadStudents(true), getDocs(query(collection(db, "groupEnrollments"), where("active", "==", true))).then(mapDocs)]);
   const gOf = id => en.filter(e => e.studentId === id).map(e => gById(e.groupId)).filter(Boolean);
   const grades = [...new Set(sts.map(s => s.grade))].filter(Boolean);
-  el.innerHTML = `<div class="row" style="justify-content:space-between"><h2>الطلاب <span class="chip" id="cnt"></span></h2></div>
-  <div class="bar"><input class="grow" id="sq" placeholder="ابحث بالاسم أو التليفون"><select id="sg"><option value="">كل السنوات</option>${grades.map(g => `<option>${esc(g)}</option>`).join("")}</select></div>
+  el.innerHTML = `<div class="row" style="justify-content:space-between"><h2>الطلاب <span class="chip" id="cnt"></span></h2><button class="btn ghost sm" data-act="exportStudents">تصدير CSV</button></div>
+  <div class="bar"><input class="grow" id="sq" placeholder="ابحث بالاسم أو التليفون"><select id="sg"><option value="">كل السنوات</option>${grades.map(g => `<option>${esc(g)}</option>`).join("")}</select>
+  <select id="sc"><option value="">كل السناتر</option>${A.centers.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("")}</select>
+  <select id="sgr"><option value="">كل المجموعات</option>${A.groups.map(g => `<option value="${esc(g.id)}">${esc(g.name)}</option>`).join("")}</select></div>
   <div class="tw"><table><thead><tr><th>الاسم</th><th>الكود</th><th>التليفون</th><th>السنة</th><th>المجموعة</th><th>الحالة</th></tr></thead><tbody id="stb"></tbody></table></div>`;
   let shown = [];
   const draw = () => {
-    const q = normPhone($("#sq").value) || $("#sq").value.trim(), qt = $("#sq").value.trim(), g = $("#sg").value;
-    shown = sts.filter(s => (!qt || s.name.includes(qt) || s.phone.includes(q) || s.code === qt) && (!g || s.grade === g)).sort(byName);
+    const q = normPhone($("#sq").value) || $("#sq").value.trim(), qt = $("#sq").value.trim(), g = $("#sg").value, c = $("#sc").value, gr = $("#sgr").value;
+    shown = sts.filter(s => (!qt || s.name.includes(qt) || s.phone.includes(q) || s.code === qt) && (!g || s.grade === g) && (!c || gOf(s.id).some(x => x.centerId === c)) && (!gr || gOf(s.id).some(x => x.id === gr))).sort(byName);
     $("#cnt").textContent = shown.length + " من " + sts.length;
     $("#stb").innerHTML = shown.slice(0, 300).map(s => `<tr style="cursor:pointer" data-act="stuOpen" data-id="${esc(s.id)}"><td><b>${esc(s.name)}</b></td><td>${esc(s.code)}</td><td dir="ltr">${esc(s.phone)}</td><td>${esc(s.grade)}</td><td>${gOf(s.id).map(x => esc(x.name)).join("، ") || "—"}</td><td>${s.active ? `<span class="chip ok">نشط</span>` : `<span class="chip">معطّل</span>`}</td></tr>`).join("") || `<tr><td colspan=6 class="empty">لا يوجد طلاب</td></tr>`;
   };
-  ["input", "change"].forEach(ev => $$("#sq,#sg").forEach(i => i.addEventListener(ev, draw))); draw();
+  ["input", "change"].forEach(ev => $$("#sq,#sg,#sc,#sgr").forEach(i => i.addEventListener(ev, draw))); draw();
+  ACT.exportStudents = () => csvDownload("students.csv", [["الاسم", "الكود", "تليفون الطالب", "تليفون ولي الأمر", "السنة", "المجموعة", "السنتر", "الحالة"], ...shown.map(s => [s.name, s.code, s.phone, s.parentPhone, s.grade, gOf(s.id).map(x => x.name).join(" | "), gOf(s.id).map(x => (cById(x.centerId) || {}).name).join(" | "), s.active ? "نشط" : "معطّل"])]);
 };
 ACT.stuOpen = async t => {
   const id = t.dataset.id, s = (A.students || []).find(x => x.id === id) || { id, ...(await getDoc(doc(db, "students", id))).data() };
   const [rc, tr, rs, en] = await Promise.all([getDocs(query(collection(db, "attendanceRecords"), where("studentId", "==", id))), getDocs(query(collection(db, "homeworkTracking"), where("studentId", "==", id))), getDocs(query(collection(db, "examResults"), where("studentId", "==", id))), getDocs(query(collection(db, "groupEnrollments"), where("studentId", "==", id)))]);
   const recs = sortRecs(mapDocs(rc)), st = attStats(recs), hw = mapDocs(tr), res = mapDocs(rs), ens = mapDocs(en);
+  const hwTitles = Object.fromEntries(mapDocs(await getDocs(collection(db, "homework"))).map(h => [h.id, h.title]));
   const cur = ens.filter(e => e.active);
   const m = openModal("بطاقة الطالب", `<h3>${esc(s.name)} ${s.active ? `<span class="chip ok">نشط</span>` : `<span class="chip">معطّل</span>`}</h3>
-  <dl class="kv"><dt>الكود</dt><dd>${esc(s.code)}</dd><dt>تليفون الطالب</dt><dd dir="ltr" style="text-align:right">${esc(s.phone)}</dd><dt>السنة</dt><dd>${esc(s.grade)}</dd><dt>المجموعة</dt><dd>${cur.map(e => esc((gById(e.groupId) || {}).name || "")).join("، ") || "—"}</dd></dl>
-  <div class="row" style="margin:10px 0"><button class="btn sm red" data-act="stuToggle" data-id="${esc(id)}">${s.active ? "تعطيل الحساب" : "تفعيل الحساب"}</button></div>
-  <h3>الحضور — <span class="sm mut">حضور ${st.p} • غياب ${st.a} • نسبة ${st.pct === null ? "—" : st.pct + "%"}</span></h3>`, true);
+  <dl class="kv"><dt>الكود</dt><dd>${esc(s.code)}</dd><dt>تليفون الطالب</dt><dd dir="ltr" style="text-align:right">${esc(s.phone)}</dd><dt>تليفون ولي الأمر</dt><dd dir="ltr" style="text-align:right">${esc(s.parentPhone)}</dd><dt>السنة</dt><dd>${esc(s.grade)}</dd><dt>المجموعة</dt><dd>${cur.map(e => esc((gById(e.groupId) || {}).name || "")).join("، ") || "—"}</dd></dl>
+  <div class="row" style="margin:10px 0"><button class="btn sm" data-act="stuEdit" data-id="${esc(id)}">تعديل البيانات</button><button class="btn sm ghost" data-act="stuTransfer" data-id="${esc(id)}">نقل لمجموعة</button><button class="btn sm ${s.active ? "red" : ""}" data-act="stuToggle" data-id="${esc(id)}">${s.active ? "تعطيل الحساب" : "تفعيل الحساب"}</button></div>
+  <h3>الحضور — <span class="sm mut">حضور ${st.p} • غياب ${st.a} • استئذان ${st.e} • النسبة ${st.pct === null ? "—" : st.pct + "%"}</span></h3>
+  <div class="tw" style="max-height:240px"><table><tbody>${recs.map(r => `<tr><td>${esc(fmtDate(r.date))}</td><td>${statusChip(r.status)}</td><td class="sm mut">${r.reason ? "سبب: " + esc(r.reason) : ""}</td><td><button class="btn sm ghost" data-act="stuEditRec" data-id="${esc(r.id)}" data-stu="${esc(id)}" data-st="${esc(r.status)}">تعديل</button></td></tr>`).join("") || `<tr><td class="empty">لا يوجد سجل</td></tr>`}</tbody></table></div>
+  <h3 style="margin-top:12px">متابعة الواجبات</h3>${hw.map(x => `<div class="row" style="justify-content:space-between"><span>${esc(hwTitles[x.homeworkId] || x.homeworkId)} <span class="sm mut">${esc(fmtDate(x.date))}</span></span>${x.done ? `<span class="chip ok">✔</span>` : `<span class="chip bad">✘</span>`}</div>`).join("") || `<div class="mut">—</div>`}
+  <h3 style="margin-top:12px">الامتحانات</h3>${res.map(x => `<div class="row" style="justify-content:space-between"><span>${esc(x.examName)}</span><b>${esc(x.score)} / ${esc(x.total)} (${Math.round(x.score / x.total * 100)}%)</b></div>`).join("") || `<div class="mut">—</div>`}
+  <h3 style="margin-top:12px">سجل المجموعات</h3>${ens.map(e => `<div class="sm">${esc((gById(e.groupId) || {}).name || e.groupId)} — ${e.active ? "حالية" : "سابقة"}</div>`).join("")}`, true);
+  m.dataset.stu = id;
 };
-
-V.attendance = async el => {
-  el.innerHTML = `<h2>الحضور والغياب</h2><div class="card c"><p class="mut">أضف سناتر ومجموعات أولاً لكي تظهر الحصص هنا.</p></div>`;
+ACT.stuToggle = async t => {
+  const id = t.dataset.id, s = (await getDoc(doc(db, "students", id))).data(); const nv = !s.active;
+  if (!confirm(nv ? "تفعيل الحساب؟" : "تعطيل الحساب؟")) return;
+  await updateDoc(doc(db, "students", id), { active: nv }); await updateDoc(doc(db, "users", id), { active: nv }).catch(() => { }); await audit(nv ? "student_activate" : "student_deactivate", "student", id); closeModals(); await loadStudents(true); toast("تم"); rerender();
 };
-
-V.scan = async el => {
-  el.innerHTML = `<h2>تسجيل الحضور</h2><div class="card c"><p class="mut">ميزة الكاميرا تحتاج لتشغيل الموقع على استضافة https.</p></div>`;
+ACT.stuEdit = async t => {
+  const id = t.dataset.id, s = (await getDoc(doc(db, "students", id))).data();
+  const m = openModal("تعديل بيانات الطالب", `<form data-submit="stuSave" data-id="${esc(id)}"><label>الاسم</label><input name="name" value="${esc(s.name)}" required minlength="3"><label>تليفون ولي الأمر</label><input name="parent" value="${esc(s.parentPhone)}" required><label>السنة الدراسية</label><input name="grade" value="${esc(s.grade)}" required><button class="btn" type="submit" style="margin-top:12px">حفظ</button></form>`);
+  $("form", m).dataset.id = id;
+};
+ACT.stuSave = async f => {
+  const v = formData(f), id = f.dataset.id, s = (await getDoc(doc(db, "students", id))).data(), parent = normPhone(v.parent);
+  if (!/^01\d{9}$/.test(parent) || parent === s.phone) throw { msg: "رقم ولي الأمر غير صحيح أو مطابق لرقم الطالب" };
+  await updateDoc(doc(db, "students", id), { name: v.name.trim(), parentPhone: parent, grade: v.grade.trim() });
+  await audit("student_edit", "student", id, { before: { name: s.name, parentPhone: s.parentPhone, grade: s.grade } }); closeModals(); await loadStudents(true); toast("تم الحفظ"); rerender();
+};
+ACT.stuEditRec = async t => {
+  const rid = t.dataset.id, cur = t.dataset.st, nv = prompt("الحالة الجديدة: اكتب  حاضر  أو  غائب  أو  مستأذن", ""); if (!nv) return;
+  const st = { "حاضر": "present", "غائب": "absent", "مستأذن": "excused" }[nv.trim()]; if (!st) { toast("اكتب إحدى الكلمات الثلاث", "err"); return; } if (st === cur) return;
+  const reason = prompt("سبب التعديل (إجباري):"); if (!reason || !reason.trim()) { toast("السبب مطلوب", "err"); return; }
+  await updateDoc(doc(db, "attendanceRecords", rid), { status: st, source: "edit", reason: reason.trim(), updatedBy: A.user.uid, updatedByName: A.name, updatedAt: serverTimestamp() });
+  await audit("attendance_edit", "attendance", rid, { from: cur, to: st }, reason.trim()); toast("تم التعديل"); closeModals();
+};
+ACT.stuTransfer = t => {
+  const id = t.dataset.id;
+  const m = openModal("نقل الطالب لمجموعة", `<form data-submit="stuMove"><label>المجموعة الجديدة</label><select name="gid" required>${activeGroups().map(g => `<option value="${esc(g.id)}">${esc(g.name)} — ${esc((cById(g.centerId) || {}).name || "")} (${esc(sched(g))})</option>`).join("")}</select><div class="chk" style="margin-top:8px"><input type="checkbox" name="keep" id="kp"><label for="kp">إبقاء المجموعات الحالية أيضًا</label></div><button class="btn" type="submit" style="margin-top:12px">تنفيذ</button></form>`);
+  $("form", m).dataset.id = id;
+};
+ACT.stuMove = async f => {
+  const v = formData(f), id = f.dataset.id, g = gById(v.gid), s = (await getDoc(doc(db, "students", id))).data();
+  const old = mapDocs(await getDocs(query(collection(db, "groupEnrollments"), where("studentId", "==", id), where("active", "==", true))));
+  const b = writeBatch(db);
+  if (!v.keep) old.filter(e => e.groupId !== g.id).forEach(e => b.update(doc(db, "groupEnrollments", e.id), { active: false, endedAt: serverTimestamp(), movedTo: g.id }));
+  b.set(doc(db, "groupEnrollments", `${id}_${g.id}`), { studentId: id, studentName: s.name, groupId: g.id, centerId: g.centerId, grade: g.grade, active: true, joinedAt: serverTimestamp() });
+  b.update(doc(db, "students", id), { currentGroupId: g.id, currentCenterId: g.centerId }); await b.commit();
+  await audit("student_transfer", "student", id, { to: g.id, from: old.map(e => e.groupId), keep: !!v.keep }); closeModals(); toast("تم النقل"); rerender();
 };
 
 V.centers = async el => {
@@ -315,11 +563,205 @@ ACT.groupSave = async f => {
 };
 ACT.groupStudents = async t => {
   const g = gById(t.dataset.id), en = mapDocs(await getDocs(query(collection(db, "groupEnrollments"), where("groupId", "==", g.id), where("active", "==", true)))).sort((a, b) => String(a.studentName).localeCompare(String(b.studentName), "ar"));
-  openModal(`طلاب ${g.name} (${en.length})`, `<div class="list">${en.map(e => `<div><span>${esc(e.studentName)}</span><span class="row"><button class="btn red sm" data-act="unenroll" data-id="${esc(e.id)}">إخراج</button></span></div>`).join("") || `<div class="empty">لا يوجد طلاب</div>`}</div>`);
+  openModal(`طلاب ${g.name} (${en.length})`, `<div class="list">${en.map(e => `<div><span>${esc(e.studentName)}</span><span class="row"><button class="btn ghost sm" data-act="stuOpen" data-id="${esc(e.studentId)}">بطاقة</button><button class="btn red sm" data-act="unenroll" data-id="${esc(e.id)}" data-stu="${esc(e.studentId)}">إخراج</button></span></div>`).join("") || `<div class="empty">لا يوجد طلاب</div>`}</div>`);
 };
 ACT.unenroll = async t => { if (!confirm("إخراج الطالب من المجموعة؟")) return; await updateDoc(doc(db, "groupEnrollments", t.dataset.id), { active: false, endedAt: serverTimestamp() }); await audit("unenroll", "enrollment", t.dataset.id); closeModals(); toast("تم"); };
 
-// النهاية
+V.homework = async el => {
+  const hs = mapDocs(await getDocs(collection(db, "homework"))).sort((a, b) => String(b.assignedDate).localeCompare(String(a.assignedDate)));
+  el.innerHTML = `<div class="row" style="justify-content:space-between"><h2>الواجبات</h2><button class="btn" data-act="hwForm">+ واجب جديد</button></div>
+  ${hs.map(h => `<div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${esc(h.title)}</h3>${h.status === "ended" ? `<span class="chip">منتهٍ</span>` : `<span class="chip ok">نشط</span>`}</div><p class="mut">${esc(h.description || "")}</p>
+  <div class="sm mut">${(h.groupIds || []).map(id => esc((gById(id) || {}).name || "")).join("، ")} • تكليف ${esc(fmtDate(h.assignedDate))}${h.dueDate ? ` • مراجعة ${esc(fmtDate(h.dueDate))}` : ""}</div>
+  <div class="row" style="margin-top:8px"><button class="btn sm ghost" data-act="hwReport" data-id="${esc(h.id)}">تقرير المتابعة</button><button class="btn sm ghost" data-act="hwForm" data-id="${esc(h.id)}">تعديل</button><button class="btn sm ${h.status === "ended" ? "" : "amb"}" data-act="hwToggle" data-id="${esc(h.id)}" data-st="${h.status === "ended" ? "active" : "ended"}">${h.status === "ended" ? "إعادة تفعيل" : "إنهاء الواجب"}</button></div></div>`).join("") || `<div class="empty">لا توجد واجبات</div>`}`;
+  A.hwList = hs;
+};
+ACT.hwForm = t => {
+  const h = t.dataset.id ? A.hwList.find(x => x.id === t.dataset.id) : { groupIds: [], assignedDate: todayStr(), status: "active" };
+  const m = openModal(h.id ? "تعديل واجب" : "واجب جديد", `<form data-submit="hwSave"><label>العنوان</label><input name="title" value="${esc(h.title || "")}" required><label>الوصف</label><textarea name="description">${esc(h.description || "")}</textarea>
+  <label>المجموعات المستهدفة</label><div class="checks">${activeGroups().map(g => `<span class="chk"><input type="checkbox" name="g_${esc(g.id)}" id="hg${esc(g.id)}" ${(h.groupIds || []).includes(g.id) ? "checked" : ""}><label for="hg${esc(g.id)}">${esc(g.name)}</label></span>`).join("")}</div>
+  <div class="row"><div class="grow"><label>تاريخ التكليف</label><input type="date" name="assignedDate" value="${esc(h.assignedDate)}" required></div><div class="grow"><label>موعد التسليم</label><input type="date" name="dueDate" value="${esc(h.dueDate || "")}"></div></div>
+  <label>ملاحظات</label><input name="notes" value="${esc(h.notes || "")}"><label>رابط مرفق</label><input name="attachmentUrl" type="url" dir="ltr" value="${esc(h.attachmentUrl || "")}">
+  <label>الحالة</label><select name="status"><option value="active" ${h.status !== "ended" ? "selected" : ""}>نشط</option><option value="ended" ${h.status === "ended" ? "selected" : ""}>منتهٍ</option></select><button class="btn" type="submit" style="margin-top:12px">حفظ</button></form>`, true);
+  $("form", m).dataset.id = h.id || "";
+};
+ACT.hwSave = async f => {
+  const v = formData(f), id = f.dataset.id, groupIds = Object.keys(v).filter(k => k.startsWith("g_")).map(k => k.slice(2));
+  if (!groupIds.length) throw { msg: "اختر مجموعة واحدة على الأقل" };
+  const data = { title: v.title.trim(), description: v.description.trim(), groupIds, assignedDate: v.assignedDate, dueDate: v.dueDate || "", notes: v.notes.trim(), attachmentUrl: v.attachmentUrl.trim(), status: v.status };
+  if (id) await updateDoc(doc(db, "homework", id), data); else await addDoc(collection(db, "homework"), { ...data, createdAt: serverTimestamp(), createdBy: A.user.uid });
+  await audit(id ? "homework_edit" : "homework_create", "homework", id || "new", { title: data.title }); closeModals(); toast("تم الحفظ"); rerender();
+};
+ACT.hwToggle = async t => { await updateDoc(doc(db, "homework", t.dataset.id), { status: t.dataset.st }); rerender(); };
+ACT.hwReport = async t => {
+  const h = A.hwList.find(x => x.id === t.dataset.id);
+  const [tr, ...ens] = await Promise.all([getDocs(query(collection(db, "homeworkTracking"), where("homeworkId", "==", h.id))).then(mapDocs), ...(h.groupIds || []).map(gid => getDocs(query(collection(db, "groupEnrollments"), where("groupId", "==", gid), where("active", "==", true))).then(mapDocs))]);
+  const stu = [...new Map(ens.flat().map(e => [e.studentId, e])).values()].sort((a, b) => String(a.studentName).localeCompare(String(b.studentName), "ar")), by = Object.fromEntries(tr.map(x => [x.studentId, x]));
+  const y = stu.filter(s => by[s.studentId]?.done).length, n = stu.filter(s => by[s.studentId] && !by[s.studentId].done).length;
+  openModal("متابعة: " + h.title, `<div class="row"><span class="chip ok">حلّوه ${y}</span><span class="chip bad">لم يحلّوه ${n}</span><span class="chip">لم يُسجَّل ${stu.length - y - n}</span></div><div class="tw" style="margin-top:8px"><table><tbody>${stu.map(s => { const x = by[s.studentId]; return `<tr><td>${esc(s.studentName)}</td><td>${x ? (x.done ? `<span class="chip ok">✔</span>` : `<span class="chip bad">✘</span>`) : `<span class="chip">—</span>`}</td><td class="sm mut">${x ? esc(x.recordedByName || "") : ""}</td></tr>`; }).join("")}</tbody></table></div>`, true);
+};
+
+V.exams = async el => {
+  const ex = mapDocs(await getDocs(collection(db, "exams"))).sort((a, b) => String(b.date).localeCompare(String(a.date))); A.examList = ex;
+  el.innerHTML = `<div class="row" style="justify-content:space-between"><h2>الامتحانات والدرجات</h2><button class="btn" data-act="examForm">+ امتحان</button></div>
+  ${ex.map(e => `<div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${esc(e.name)}</h3>${e.published ? `<span class="chip ok">النتائج منشورة</span>` : `<span class="chip warn">غير منشورة</span>`}</div>
+  <div class="sm mut">${esc(fmtDate(e.date))} • الدرجة النهائية ${esc(e.total)} • ${(e.groupIds || []).map(id => esc((gById(id) || {}).name || "")).join("، ")}</div>
+  <div class="row" style="margin-top:8px"><button class="btn sm" data-act="examScores" data-id="${esc(e.id)}">إدخال/تعديل الدرجات</button><button class="btn sm ghost" data-act="examResults" data-id="${esc(e.id)}">النتائج والترتيب</button><button class="btn sm ${e.published ? "amb" : ""}" data-act="examPublish" data-id="${esc(e.id)}">${e.published ? "إخفاء النتائج" : "نشر النتائج للطلاب"}</button></div></div>`).join("") || `<div class="empty">لا توجد امتحانات</div>`}`;
+};
+ACT.examForm = () => {
+  openModal("امتحان جديد", `<form data-submit="examSave"><label>اسم الامتحان</label><input name="name" required><div class="row"><div class="grow"><label>التاريخ</label><input type="date" name="date" value="${todayStr()}" required></div><div class="grow"><label>الدرجة النهائية</label><input type="number" name="total" min="1" step="0.5" required></div></div>
+  <label>المجموعات المستهدفة</label><div class="checks">${activeGroups().map(g => `<span class="chk"><input type="checkbox" name="g_${esc(g.id)}" id="eg${esc(g.id)}"><label for="eg${esc(g.id)}">${esc(g.name)}</label></span>`).join("")}</div><button class="btn" type="submit" style="margin-top:12px">حفظ</button></form>`);
+};
+ACT.examSave = async f => {
+  const v = formData(f), groupIds = Object.keys(v).filter(k => k.startsWith("g_")).map(k => k.slice(2)); if (!groupIds.length) throw { msg: "اختر مجموعة واحدة على الأقل" };
+  const data = { name: v.name.trim(), date: v.date, total: Number(v.total), groupIds, published: false, createdAt: serverTimestamp() };
+  const r = await addDoc(collection(db, "exams"), data); await audit("exam_create", "exam", r.id, { name: data.name }); closeModals(); toast("تم الإنشاء"); rerender();
+};
+async function examRoster(e) {
+  const [ens, rs] = await Promise.all([Promise.all((e.groupIds || []).map(gid => getDocs(query(collection(db, "groupEnrollments"), where("groupId", "==", gid), where("active", "==", true))).then(mapDocs))), getDocs(query(collection(db, "examResults"), where("examId", "==", e.id))).then(mapDocs)]);
+  const stu = [...new Map(ens.flat().map(x => [x.studentId, x])).values()].sort((a, b) => String(a.studentName).localeCompare(String(b.studentName), "ar"));
+  return { stu, res: Object.fromEntries(rs.map(r => [r.studentId, r])) };
+}
+ACT.examScores = async t => {
+  const e = A.examList.find(x => x.id === t.dataset.id), { stu, res } = await examRoster(e);
+  const m = openModal("درجات: " + e.name + " (من " + e.total + ")", `<form data-submit="scoresSave"><div class="tw"><table><thead><tr><th>الطالب</th><th>الدرجة</th></tr></thead><tbody>${stu.map(s => `<tr><td>${esc(s.studentName)}</td><td><input type="number" step="0.25" min="0" max="${esc(e.total)}" name="s_${esc(s.studentId)}" data-n="${esc(s.studentName)}" data-g="${esc(s.groupId)}" value="${res[s.studentId] ? esc(res[s.studentId].score) : ""}" style="width:110px"></td></tr>`).join("") || `<tr><td class="empty">لا يوجد طلاب</td></tr>`}</tbody></table></div><button class="btn" type="submit" style="margin-top:12px">حفظ الدرجات</button></form>`, true);
+  const f = $("form", m); f.dataset.id = e.id; f._res = res;
+};
+ACT.scoresSave = async f => {
+  const e = A.examList.find(x => x.id === f.dataset.id), res = f._res || {}; const ops = [];
+  for (const inp of $$("input[name^=s_]", f)) {
+    if (inp.value === "") continue; const sc = Number(inp.value), sid = inp.name.slice(2); if (sc < 0 || sc > e.total) throw { msg: `درجة غير صحيحة` };
+    const old = res[sid]; if (old && Number(old.score) === sc) continue;
+    ops.push({ sid, sc, old, name: inp.dataset.n, gid: inp.dataset.g });
+  }
+  for (let i = 0; i < ops.length; i += 200) {
+    const b = writeBatch(db);
+    ops.slice(i, i + 200).forEach(o => b.set(doc(db, "examResults", `${e.id}_${o.sid}`), { examId: e.id, examName: e.name, date: e.date, total: e.total, studentId: o.sid, studentName: o.name, groupId: o.gid, score: o.sc, published: !!e.published, updatedAt: serverTimestamp(), updatedBy: A.user.uid }));
+    await b.commit();
+  }
+  for (const o of ops) { if (o.old) await audit("exam_score_edit", "examResult", `${e.id}_${o.sid}`, { from: o.old.score, to: o.sc }); }
+  await audit("exam_scores_save", "exam", e.id, { changed: ops.length }); closeModals(); toast(`تم حفظ ${ops.length} درجة`);
+};
+ACT.examResults = async t => {
+  const e = A.examList.find(x => x.id === t.dataset.id), { res } = await examRoster(e), rows = Object.values(res).sort((a, b) => b.score - a.score);
+  let rk = 0, last = null, shown = 0; const ranked = rows.map(r => { shown++; if (r.score !== last) { rk = shown; last = r.score; } return { ...r, rk }; });
+  const avg = rows.length ? (rows.reduce((a, r) => a + r.score, 0) / rows.length).toFixed(1) : "—";
+  const m = openModal("نتائج: " + e.name, `<div class="row"><span class="chip">عدد النتائج ${rows.length}</span><span class="chip ok">المتوسط ${avg} / ${e.total}</span><button class="btn ghost sm" data-act="csvExam">تصدير CSV</button></div><div class="tw" style="margin-top:8px"><table><thead><tr><th>الترتيب</th><th>الطالب</th><th>الدرجة</th><th>%</th></tr></thead><tbody>${ranked.map(r => `<tr><td>${r.rk}</td><td>${esc(r.studentName)}</td><td>${esc(r.score)} / ${esc(r.total)}</td><td>${Math.round(r.score / r.total * 100)}%</td></tr>`).join("") || `<tr><td colspan=4 class="empty">لا توجد درجات</td></tr>`}</tbody></table></div>`, true);
+  ACT.csvExam = () => csvDownload(`${e.name}.csv`, [["الترتيب", "الطالب", "الدرجة", "من", "النسبة"], ...ranked.map(r => [r.rk, r.studentName, r.score, r.total, Math.round(r.score / r.total * 100) + "%"])]);
+};
+ACT.examPublish = async t => {
+  const e = A.examList.find(x => x.id === t.dataset.id), nv = !e.published, { res } = await examRoster(e), all = Object.values(res);
+  if (!confirm(nv ? "نشر النتائج لكل طالب؟" : "إخفاء النتائج؟")) return;
+  for (let i = 0; i < all.length; i += 400) { const b = writeBatch(db); all.slice(i, i + 400).forEach(r => b.update(doc(db, "examResults", r.id), { published: nv })); await b.commit(); }
+  await updateDoc(doc(db, "exams", e.id), { published: nv }); await audit(nv ? "exam_publish" : "exam_unpublish", "exam", e.id); toast("تم"); rerender();
+};
+
+V.notifs = async el => {
+  const ns = mapDocs(await getDocs(query(collection(db, "notifications"), orderBy("createdAt", "desc"), limit(30))));
+  const reads = await Promise.all(ns.map(n => getCountFromServer(query(collection(db, "inbox"), where("notifId", "==", n.id), where("read", "==", true))).then(s => s.data().count).catch(() => 0)));
+  const grades = [...new Set(A.groups.map(g => g.grade))].filter(Boolean);
+  el.innerHTML = `<h2>الإشعارات</h2><div class="card"><h3>إشعار جديد</h3><form data-submit="notifSend"><label>العنوان</label><input name="title" required maxlength="120"><label>النص</label><textarea name="body" required maxlength="1000"></textarea>
+  <label>النوع</label><select name="type"><option value="general">عام</option><option value="alert">تنبيه</option><option value="cancel">إلغاء/تأجيل حصة</option><option value="result">نتيجة</option></select>
+  <label>الفئة المستهدفة</label><div class="chk"><input type="checkbox" name="all" id="nall"><label for="nall"><b>جميع الطلاب</b></label></div>
+  <div><div class="sm b">سنوات دراسية</div><div class="checks">${grades.map((g, i) => `<span class="chk"><input type="checkbox" name="gr_${i}" value="${esc(g)}" id="ngr${i}"><label for="ngr${i}">${esc(g)}</label></span>`).join("")}</div>
+  <div class="sm b">سناتر</div><div class="checks">${A.centers.map(c => `<span class="chk"><input type="checkbox" name="c_${esc(c.id)}" id="nc${esc(c.id)}"><label for="nc${esc(c.id)}">${esc(c.name)}</label></span>`).join("")}</div>
+  <div class="sm b">مجموعات</div><div class="checks">${activeGroups().map(g => `<span class="chk"><input type="checkbox" name="g_${esc(g.id)}" id="ng${esc(g.id)}"><label for="ng${esc(g.id)}">${esc(g.name)}</label></span>`).join("")}</div></div>
+  <button class="btn" type="submit" style="margin-top:8px">إرسال</button></form></div>
+  <div class="card"><h3>الإشعارات السابقة</h3>${ns.length ? `<div class="tw"><table><thead><tr><th>العنوان</th><th>وقت الإرسال</th><th>المستهدفون</th><th>قرؤوه</th></tr></thead><tbody>${ns.map((n, i) => `<tr><td><b>${esc(n.title)}</b><div class="sm mut">${esc(n.targetText || "")}</div></td><td class="sm">${esc(fmtTs(n.createdAt))}</td><td>${esc(n.targetCount)}</td><td>${reads[i]}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">لم يُرسل أي إشعار بعد</div>`}</div>`;
+};
+ACT.notifSend = async f => {
+  const v = formData(f), all = !!v.all, grs = Object.keys(v).filter(k => k.startsWith("gr_")).map(k => v[k]), cs = Object.keys(v).filter(k => k.startsWith("c_")).map(k => k.slice(2)), gs = Object.keys(v).filter(k => k.startsWith("g_")).map(k => k.slice(2));
+  if (!all && !grs.length && !cs.length && !gs.length) throw { msg: "اختر الفئة المستهدفة" };
+  const [stu, en] = await Promise.all([loadStudents(true), getDocs(query(collection(db, "groupEnrollments"), where("active", "==", true))).then(mapDocs)]);
+  const target = stu.filter(s => s.active && (all || grs.includes(s.grade) || en.some(e => e.studentId === s.id && (cs.includes(e.centerId) || gs.includes(e.groupId)))));
+  if (!target.length) throw { msg: "لا يوجد طلاب مطابقون" };
+  if (!confirm(`سيصل الإشعار إلى ${target.length} طالب. إرسال؟`)) return;
+  const names = [...(all ? ["جميع الطلاب"] : []), ...grs, ...cs.map(id => (cById(id) || {}).name), ...gs.map(id => (gById(id) || {}).name)].filter(Boolean).join("، ");
+  const nref = doc(collection(db, "notifications"));
+  await setDoc(nref, { title: v.title.trim(), body: v.body.trim(), type: v.type, target: { all, grades: grs, centerIds: cs, groupIds: gs }, targetText: names, targetCount: target.length, createdAt: serverTimestamp(), createdBy: A.user.uid });
+  for (let i = 0; i < target.length; i += 400) {
+    const b = writeBatch(db);
+    target.slice(i, i + 400).forEach(s => b.set(doc(db, "inbox", `${nref.id}_${s.id}`), { notifId: nref.id, studentId: s.id, title: v.title.trim(), body: v.body.trim(), type: v.type, read: false, createdAt: serverTimestamp() }));
+    await b.commit();
+  }
+  await audit("notification_send", "notification", nref.id, { count: target.length }); f.reset(); toast(`تم الإرسال إلى ${target.length} طالب`); rerender();
+};
+
+V.assistants = async el => {
+  const as = mapDocs(await getDocs(query(collection(db, "users"), where("role", "==", "assistant")))).sort(byName), today = todayStr();
+  const cnt = await Promise.all(as.map(a => getDocs(query(collection(db, "attendanceRecords"), where("markedBy", "==", a.id), where("date", "==", today))).then(s => s.size).catch(() => 0)));
+  el.innerHTML = `<div class="row" style="justify-content:space-between"><h2>المساعدون والمشرفون</h2><button class="btn" data-act="asstForm">+ إنشاء حساب مساعد</button></div>
+  ${as.map((a, i) => `<div class="card"><div class="row" style="justify-content:space-between"><div><h3 style="margin:0">${esc(a.name)} ${a.active ? `<span class="chip ok">نشط</span>` : `<span class="chip">معطّل</span>`}</h3><div class="sm mut" dir="ltr" style="text-align:right">${esc(a.email)}</div><div class="sm">سجّل اليوم: <b>${cnt[i]}</b> طالب</div></div>
+  <div class="row"><button class="btn ghost sm" data-act="asstLog" data-id="${esc(a.id)}">عملياته</button><button class="btn ghost sm" data-act="asstReset" data-email="${esc(a.email)}">إعادة تعيين كلمة المرور</button><button class="btn sm ${a.active ? "red" : ""}" data-act="asstToggle" data-id="${esc(a.id)}" data-v="${a.active ? 0 : 1}">${a.active ? "تعطيل" : "تفعيل"}</button></div></div></div>`).join("") || `<div class="empty">لا يوجد مساعدون بعد</div>`}`;
+};
+ACT.asstForm = () => openModal("حساب مساعد جديد", `<form data-submit="asstSave"><label>اسم المساعد</label><input name="name" required><label>البريد الإلكتروني للدخول</label><input name="email" type="email" dir="ltr" required><label>كلمة مرور مبدئية (6 أحرف)</label><input name="pw" type="password" minlength="6" required><button class="btn" type="submit">إنشاء</button></form>`);
+ACT.asstSave = async f => {
+  const v = formData(f), email = v.email.trim().toLowerCase();
+  const sec = initializeApp(firebaseConfig, "sec" + Date.now()); let uid;
+  try { const cr = await createUserWithEmailAndPassword(getAuth(sec), email, v.pw); uid = cr.user.uid; await signOut(getAuth(sec)); } finally { }
+  await setDoc(doc(db, "users", uid), { name: v.name.trim(), email, role: "assistant", active: true, createdAt: serverTimestamp(), createdBy: A.user.uid });
+  await audit("assistant_create", "user", uid, { email }); closeModals(); toast("تم إنشاء الحساب"); rerender();
+};
+ACT.asstToggle = async t => { await updateDoc(doc(db, "users", t.dataset.id), { active: t.dataset.v === "1" }); await audit("assistant_toggle", "user", t.dataset.id, { active: t.dataset.v === "1" }); rerender(); };
+ACT.asstReset = async t => { await sendPasswordResetEmail(auth, t.dataset.email); toast("تم إرسال رابط إعادة تعيين كلمة المرور"); };
+ACT.asstLog = async t => {
+  const rs = sortRecs(mapDocs(await getDocs(query(collection(db, "attendanceRecords"), where("markedBy", "==", t.dataset.id))))).slice(0, 100);
+  openModal("آخر عمليات التسجيل", `<div class="tw"><table><tbody>${rs.map(r => `<tr><td>${esc(r.studentName)}</td><td>${esc(fmtDate(r.date))}</td><td>${statusChip(r.status)}</td><td class="sm mut">${esc(fmtTs(r.markedAt))}</td></tr>`).join("") || `<tr><td class="empty">لا توجد عمليات</td></tr>`}</tbody></table></div>`, true);
+};
+
+V.reports = async el => {
+  const d30 = todayStr(new Date(Date.now() - 29 * 86400000)), grades = [...new Set(A.groups.map(g => g.grade))].filter(Boolean);
+  el.innerHTML = `<h2>التقارير والإحصائيات</h2><div class="card noprint"><div class="tabs" id="rt">${[["att", "الحضور"], ["day", "اليومي"], ["hw", "الواجبات"], ["ex", "الدرجات"], ["stu", "الطلاب والسناتر"]].map(([k, t], i) => `<button data-act="rtab" data-k="${k}" class="${i ? "" : "on"}">${t}</button>`).join("")}</div>
+  <div class="row"><div><label>من</label><input type="date" id="rf" value="${d30}"></div><div><label>إلى</label><input type="date" id="rto" value="${todayStr()}"></div>
+  <div><label>السنتر</label><select id="rc"><option value="">الكل</option>${A.centers.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("")}</select></div>
+  <div><label>المجموعة</label><select id="rg"><option value="">الكل</option>${A.groups.map(g => `<option value="${esc(g.id)}">${esc(g.name)}</option>`).join("")}</select></div>
+  <div><label>السنة</label><select id="ry"><option value="">الكل</option>${grades.map(g => `<option>${esc(g)}</option>`).join("")}</select></div>
+  <div style="align-self:end"><button class="btn" data-act="rrun">عرض</button> <button class="btn ghost" onclick="window.print()">طباعة</button> <button class="btn ghost" data-act="rcsv">CSV</button></div></div></div><div id="rout" class="card" style="margin-top:14px"><div class="empty">اختر الفلاتر ثم اضغط «عرض»</div></div>`;
+  A.rtab = "att"; A.rcsv = null;
+};
+ACT.rtab = t => { A.rtab = t.dataset.k; $$("#rt button").forEach(b => b.classList.toggle("on", b === t)); return ACT.rrun(); };
+ACT.rcsv = () => { if (A.rcsv) csvDownload("report.csv", A.rcsv); else toast("اعرض التقرير أولًا", "err"); };
+ACT.rrun = async () => {
+  const f = $("#rf").value, to = $("#rto").value, c = $("#rc").value, g = $("#rg").value, y = $("#ry").value, out = $("#rout"); out.innerHTML = `<div class="spin"></div>`;
+  const okG = id => { const gr = gById(id); return gr && (!c || gr.centerId === c) && (!g || gr.id === g) && (!y || gr.grade === y); };
+  const tbl = (head, rows) => `<div class="tw"><table><thead><tr>${head.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(x => `<td>${x}</td>`).join("")}</tr>`).join("") || `<tr><td colspan=${head.length} class="empty">لا توجد بيانات</td></tr>`}</tbody></table></div>`;
+  const pct = s => s.pct === null ? "—" : s.pct + "%";
+  const tab = A.rtab;
+  if (tab === "att" || tab === "day") {
+    const recs = mapDocs(await getDocs(query(collection(db, "attendanceRecords"), where("date", ">=", f), where("date", "<=", to)))).filter(r => okG(r.groupId));
+    const total = attStats(recs);
+    const cards = `<div class="grid g4"><div class="stat ok"><b>${total.p}</b><span>حضور</span></div><div class="stat bad"><b>${total.a}</b><span>غياب</span></div><div class="stat warn"><b>${total.e}</b><span>استئذان</span></div><div class="stat"><b>${pct(total)}</b><span>نسبة الحضور</span></div></div>`;
+    if (tab === "day") {
+      const days = [...new Set(recs.map(r => r.date))].sort().reverse(); const rows = days.map(d => { const s = attStats(recs.filter(r => r.date === d)); return [esc(fmtDate(d)), s.p, s.a, s.e, pct(s)]; });
+      A.rcsv = [["التاريخ", "حضور", "غياب", "استئذان", "النسبة"], ...rows.map(r => [r[0], ...r.slice(1)])]; out.innerHTML = cards + `<h3 style="margin-top:14px">التقرير اليومي</h3>` + tbl(["التاريخ", "حضور", "غياب", "استئذان", "النسبة"], rows);
+    } else {
+      const byG = [...new Set(recs.map(r => r.groupId))].map(id => { const s = attStats(recs.filter(r => r.groupId === id)); return [esc((gById(id) || {}).name || ""), esc(((cById((gById(id) || {}).centerId)) || {}).name || ""), s.p, s.a, s.e, pct(s)]; });
+      const byS = [...new Set(recs.map(r => r.studentId))].map(id => { const rr = recs.filter(r => r.studentId === id), s = attStats(rr); return [esc(rr[0].studentName), s.p, s.a, s.e, pct(s)]; }).sort((a, b) => String(a[0]).localeCompare(String(b[0]), "ar"));
+      A.rcsv = [["الطالب", "حضور", "غياب", "استئذان", "النسبة"], ...byS];
+      out.innerHTML = cards + `<h3 style="margin-top:14px">حسب المجموعة</h3>` + tbl(["المجموعة", "السنتر", "حضور", "غياب", "استئذان", "النسبة"], byG) + `<h3 style="margin-top:14px">حضور كل طالب</h3>` + tbl(["الطالب", "حضور", "غياب", "استئذان", "النسبة"], byS);
+    }
+  } else if (tab === "hw") {
+    const [tr, hs] = await Promise.all([getDocs(query(collection(db, "homeworkTracking"), where("date", ">=", f), where("date", "<=", to))).then(mapDocs), getDocs(collection(db, "homework")).then(mapDocs)]);
+    const rr = tr.filter(r => okG(r.groupId)), by = [...new Set(rr.map(r => r.homeworkId))].map(id => { const x = rr.filter(r => r.homeworkId === id), yes = x.filter(r => r.done).length; return [esc((hs.find(h => h.id === id) || {}).title || id), yes, x.length - yes, Math.round(yes / x.length * 100) + "%"]; });
+    A.rcsv = [["الواجب", "حلّوه", "لم يحلّوه", "النسبة"], ...by]; out.innerHTML = `<h3>متابعة الواجبات</h3>` + tbl(["الواجب", "حلّوه", "لم يحلّوه", "النسبة"], by);
+  } else if (tab === "ex") {
+    const rs = mapDocs(await getDocs(query(collection(db, "examResults"), where("date", ">=", f), where("date", "<=", to)))).filter(r => okG(r.groupId)), by = [...new Set(rs.map(r => r.examId))].map(id => { const x = rs.filter(r => r.examId === id), avg = x.reduce((a, r) => a + r.score, 0) / x.length; return [esc(x[0].examName), esc(fmtDate(x[0].date)), x.length, avg.toFixed(1) + " / " + x[0].total, Math.round(avg / x[0].total * 100) + "%", Math.max(...x.map(r => r.score))]; });
+    A.rcsv = [["الامتحان", "التاريخ", "عدد النتائج", "المتوسط", "النسبة", "الأعلى"], ...by]; out.innerHTML = `<h3>نتائج الامتحانات</h3>` + tbl(["الامتحان", "التاريخ", "عدد النتائج", "المتوسط", "النسبة", "الأعلى"], by);
+  } else {
+    const [sts, en] = await Promise.all([loadStudents(true), getDocs(query(collection(db, "groupEnrollments"), where("active", "==", true))).then(mapDocs)]);
+    const rows = activeGroups().filter(gr => okG(gr.id)).map(gr => [esc(gr.name), esc((cById(gr.centerId) || {}).name || ""), esc(gr.grade), en.filter(e => e.groupId === gr.id).length]);
+    A.rcsv = [["المجموعة", "السنتر", "السنة", "عدد الطلاب"], ...rows];
+    out.innerHTML = `<div class="grid g4"><div class="stat"><b>${sts.length}</b><span>إجمالي الطلاب المسجلين</span></div><div class="stat ok"><b>${sts.filter(s => s.active).length}</b><span>نشطون</span></div><div class="stat"><b>${A.centers.length}</b><span>سناتر</span></div><div class="stat"><b>${activeGroups().length}</b><span>مجموعات</span></div></div><h3 style="margin-top:14px">أعداد الطلاب في المجموعات</h3>` + tbl(["المجموعة", "السنتر", "السنة", "عدد الطلاب"], rows);
+  }
+};
+
+V.settings = async el => {
+  const logs = mapDocs(await getDocs(query(collection(db, "auditLogs"), orderBy("at", "desc"), limit(40))));
+  el.innerHTML = `<h2>إعدادات المنصة</h2><div class="card"><dl class="kv"><dt>المنصة</dt><dd>المصطفى في الرياضيات</dd><dt>المدرس</dt><dd>الأستاذ محمد مصطفى</dd><dt>المنطقة الزمنية</dt><dd>Africa/Cairo</dd><dt>تسجيل الحضور</dt><dd>من 120 دقيقة قبل الحصة حتى 60 دقيقة بعد نهايتها</dd></dl>
+  <div class="row" style="margin-top:10px"><button class="btn ghost" data-act="closeAllEnded">إغلاق كل الحصص المنتهية</button></div></div>
+  <div class="card"><h3>سجل التدقيق (آخر 40 عملية)</h3><div class="tw"><table><thead><tr><th>الوقت</th><th>المنفّذ</th><th>العملية</th><th>التفاصيل</th></tr></thead><tbody>${logs.map(l => `<tr><td class="sm">${esc(fmtTs(l.at))}</td><td>${esc(l.actorName)}</td><td>${esc(l.action)}</td><td class="sm mut">${esc(l.reason || "")} ${esc(JSON.stringify(l.details || {}).slice(0, 120))}</td></tr>`).join("") || `<tr><td colspan=4 class="empty">—</td></tr>`}</tbody></table></div></div>`;
+};
+
+// Initialize App based on local storage
 if (localStorage.getItem("isAdminLoggedIn") === "true") {
   loadBase().then(() => { renderShell(); route(); });
 } else {

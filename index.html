@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#15803d">
+<meta name="robots" content="noindex,nofollow">
+<title>المصطفى في الرياضيات — لوحة الإدارة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--g:#15803d;--g2:#16a34a;--g3:#22c55e;--gl:#ecfdf5;--gl2:#d1fae5;--ink:#0f172a;--mut:#64748b;--line:#e5e7eb;--bg:#f6faf7;--red:#dc2626;--redl:#fee2e2;--amb:#b45309;--ambl:#fef3c7;--r:16px;--sh:0 1px 2px rgba(15,23,42,.05),0 4px 14px rgba(15,23,42,.06)}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:'Cairo',system-ui,-apple-system,'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;font-size:16px}
+a,button,.card{cursor:pointer;touch-action:manipulation}
+a{color:var(--g);text-decoration:none}h1,h2,h3{margin:.2em 0 .5em;line-height:1.3}h2{font-size:1.35rem}h3{font-size:1.05rem}
+header.top{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 16px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--g)}
+.mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--g2),var(--g));color:#fff;display:grid;place-items:center;font-size:22px;font-weight:800}
+.logo small{display:block;color:var(--mut);font-weight:600;font-size:.72rem;line-height:1.1}
+.sp{flex:1}
+nav.pills{background:#fff;border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto;padding:8px 12px;position:sticky;top:59px;z-index:99;scrollbar-width:none}
+nav.pills::-webkit-scrollbar{display:none}
+nav.pills a{white-space:nowrap;padding:8px 14px;border-radius:999px;color:var(--mut);font-weight:700;font-size:.92rem;position:relative}
+nav.pills a.on{background:var(--gl2);color:var(--g)}
+main{max-width:1100px;margin:0 auto;padding:18px 16px 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
+.card+.card,.grid+.card,.card+.grid{margin-top:14px}
+.grid{display:grid;gap:12px}.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}.g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.g4{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.stat{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh)}
+.stat b{display:block;font-size:1.9rem;line-height:1.2;color:var(--ink)}.stat span{color:var(--mut);font-size:.88rem;font-weight:600}.stat small{display:block;color:var(--mut);font-size:.75rem}
+.stat.ok b{color:var(--g)}.stat.bad b{color:var(--red)}.stat.warn b{color:var(--amb)}
+.btn,button.btn{font:inherit;font-weight:700;border:0;border-radius:12px;padding:10px 18px;background:var(--g2);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;transition:.15s}
+.btn:hover{background:var(--g)}.btn:disabled{opacity:.55;cursor:wait}
+.btn.ghost{background:#fff;color:var(--g);border:1.5px solid var(--g2)}.btn.ghost:hover{background:var(--gl)}
+.btn.red{background:var(--red)}.btn.amb{background:var(--amb)}.btn.sm{min-height:34px;padding:4px 12px;font-size:.88rem;border-radius:10px}.btn.big{min-height:64px;font-size:1.25rem;width:100%;border-radius:18px}
+label{display:block;font-weight:700;font-size:.88rem;margin:10px 0 4px;color:#334155}
+input,select,textarea{font:inherit;width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);min-height:46px}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--g2);box-shadow:0 0 0 3px var(--gl2)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:0 0 auto}.row .grow{flex:1 1 180px}
+.chk{display:flex;gap:8px;align-items:center;font-weight:600;margin:4px 0}.chk label{margin:0;font-weight:600}
+.checks{display:flex;flex-wrap:wrap;gap:6px 16px;padding:6px 0}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.8rem;font-weight:800;background:#f1f5f9;color:#475569}
+.chip.ok{background:var(--gl2);color:var(--g)}.chip.bad{background:var(--redl);color:var(--red)}.chip.warn{background:var(--ambl);color:var(--amb)}
+.mut{color:var(--mut)}.sm{font-size:.85rem}.c{text-align:center}.b{font-weight:800}
+table{width:100%;border-collapse:collapse;font-size:.93rem}th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:start;vertical-align:middle}th{color:var(--mut);font-size:.8rem;background:#f8fafc;position:sticky;top:0}
+.tw{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:12px;background:#fff}
+.auth{max-width:440px;margin:24px auto}
+.err{background:var(--redl);color:var(--red);padding:10px 12px;border-radius:12px;font-weight:700;margin:10px 0}
+.empty{text-align:center;color:var(--mut);padding:26px 10px}
+.spin{width:30px;height:30px;border:4px solid var(--gl2);border-top-color:var(--g2);border-radius:50%;animation:s 1s linear infinite;margin:40px auto}@keyframes s{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 18px;border-radius:12px;z-index:9999;font-weight:700;max-width:92vw;box-shadow:var(--sh)}
+.toast.ok{background:var(--g)}.toast.err{background:var(--red)}
+.mback{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:500;display:flex;align-items:flex-end;justify-content:center}
+.modal{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;box-shadow:var(--sh)}.modal.wide{max-width:900px}
+.mh{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff}.mb{padding:16px 18px 24px}
+.x{border:0;background:#f1f5f9;border-radius:10px;width:34px;height:34px;font-size:16px;cursor:pointer}
+.phrase{color:var(--g);font-weight:800;text-align:center;padding:18px 8px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px}.kv dt{color:var(--mut);font-weight:700}.kv dd{margin:0;font-weight:700}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+<div id="app"><div class="spin"></div></div>
+<noscript><p style="padding:20px">لازم تفعّل JavaScript لتشغيل الموقع.</p></noscript>
+<script type="module">
+// إنذار لأي خطأ
+window.addEventListener("error", e => { alert("خطأ في الكود: " + e.message); });
+window.addEventListener("unhandledrejection", e => { alert("خطأ في الاتصال: " + (e.reason?.message || e.reason)); });
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getFirestore, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, collection, query, where, orderBy, limit, onSnapshot, writeBatch, serverTimestamp, Timestamp, getCountFromServer } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDr753V8JSOXAlH13FczH1gjIbLYwfaXJQ",
+  authDomain: "almostfa-d4666.firebaseapp.com",
+  databaseURL: "https://almostfa-d4666-default-rtdb.firebaseio.com",
+  projectId: "almostfa-d4666",
+  storageBucket: "almostfa-d4666.firebasestorage.app",
+  messagingSenderId: "40005003965",
+  appId: "1:40005003965:web:7dc9a33ead504237c265d4",
+  measurementId: "G-NM0CPYQC9N"
+};
+
+const ADMIN_EMAIL = "Mohammed@gmai.com";
+const ADMIN_PASSWORD = "Dosha123";
+
+let fbApp = initializeApp(firebaseConfig), db = getFirestore(fbApp);
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const DAYS = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+const PHRASES = ["كل مسألة ليها حل", "افهمها، ما تحسبهاش", "طريق التفوق بيبدأ بالمعادلة", "مع المصطفى، كل معادلة ليها حل"];
+const rnd = a => a[Math.floor(Math.random() * a.length)];
+const byName = (a, b) => String(a.name || "").localeCompare(String(b.name || ""), "ar");
+const normPhone = s => String(s || "").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\D/g, "");
+
+const _fmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Cairo", hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+function cairoParts(d = new Date()) { const o = {}; _fmt.formatToParts(d).forEach(p => o[p.type] = p.value); return o; }
+function todayStr(d = new Date()) { const p = cairoParts(d); return `${p.year}-${p.month}-${p.day}`; }
+function dowOf(dateStr) { return new Date(dateStr + "T12:00:00Z").getUTCDay(); }
+function tzOffsetMin(d) { const p = cairoParts(d); const asUTC = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second); return Math.round((asUTC - Math.floor(d.getTime() / 1000) * 1000) / 60000); }
+function cairoInstant(dateStr, hhmm) {
+  const [y, m, d] = dateStr.split("-").map(Number), [h, mi] = hhmm.split(":").map(Number);
+  const guess = Date.UTC(y, m - 1, d, h, mi);
+  let off = tzOffsetMin(new Date(guess - 3 * 3600000));
+  let t = guess - off * 60000; off = tzOffsetMin(new Date(t));
+  return new Date(guess - off * 60000);
+}
+const fmtTime = t => { const [h, m] = String(t || "0:0").split(":").map(Number); return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h >= 12 ? "م" : "ص"}`; };
+const sched = g => `${(g.days || []).map(d => DAYS[d]).join("، ")} • ${fmtTime(g.start)} – ${fmtTime(g.end)}`;
+const fmtDate = s => s ? new Date(s + "T12:00:00Z").toLocaleDateString("ar-EG", { timeZone: "UTC", weekday: "short", day: "numeric", month: "short", year: "numeric" }) : "";
+const fmtTs = t => t && t.toDate ? t.toDate().toLocaleString("ar-EG", { timeZone: "Africa/Cairo", dateStyle: "medium", timeStyle: "short" }) : "";
+const minutesBetween = (a, b) => Math.round((b - a) / 60000);
+
+function toast(m, t = "ok") { const d = document.createElement("div"); d.className = "toast " + t; d.textContent = m; document.body.appendChild(d); setTimeout(() => d.remove(), 4200); }
+function openModal(title, html, wide) {
+  const w = document.createElement("div"); w.className = "mback";
+  w.innerHTML = `<div class="modal ${wide ? "wide" : ""}"><div class="mh"><b>${esc(title)}</b><button class="x" data-close aria-label="إغلاق">✕</button></div><div class="mb">${html}</div></div>`;
+  w.addEventListener("click", e => { if (e.target === w || e.target.closest("[data-close]")) w.remove(); });
+  document.body.appendChild(w); return w;
+}
+const closeModals = () => $$(".mback").forEach(m => m.remove());
+function errMsg(e) { return (e && e.message) || "حدث خطأ"; }
+async function run(el, fn) {
+  const b = el && el.closest ? el.closest("button,.btn") : null; if (b) b.disabled = true;
+  try { return await fn(); } catch (e) { console.error(e); toast(errMsg(e), "err"); } finally { if (b) b.disabled = false; }
+}
+const ACT = {};
+document.addEventListener("click", e => { const t = e.target.closest("[data-act]"); if (!t) return; const f = ACT[t.dataset.act]; if (f) { if (t.tagName === "A") e.preventDefault(); run(t, () => f(t, e)); } });
+document.addEventListener("submit", e => { const f = e.target.closest("form[data-submit]"); if (!f) return; e.preventDefault(); const fn = ACT[f.dataset.submit]; if (fn) run(f.querySelector("button[type=submit]"), () => fn(f, e)); });
+const formData = f => Object.fromEntries(new FormData(f));
+const qs = k => new URLSearchParams(location.hash.split("?")[1] || "").get(k);
+const statusChip = s => s === "present" ? `<span class="chip ok">حاضر</span>` : s === "absent" ? `<span class="chip bad">غائب</span>` : s === "excused" ? `<span class="chip warn">مستأذن</span>` : `<span class="chip">—</span>`;
+function attStats(recs) {
+  const p = recs.filter(r => r.status === "present").length, a = recs.filter(r => r.status === "absent").length, e = recs.filter(r => r.status === "excused").length;
+  const base = p + a; return { p, a, e, total: p + a + e, pct: base ? Math.round(p / base * 100) : null };
+}
+const sortRecs = rs => [...rs].sort((x, y) => String(y.date).localeCompare(String(x.date)) || ((y.markedAt?.seconds || 0) - (x.markedAt?.seconds || 0)));
+const mapDocs = s => s.docs.map(d => ({ id: d.id, ...d.data() }));
+
+const app = $("#app");
+const A = { user: { uid: "local_admin" }, role: "admin", name: "الأستاذ محمد", centers: [], groups: [], students: null, unsubs: [] };
+const isT = () => true; 
+const gById = id => A.groups.find(g => g.id === id), cById = id => A.centers.find(c => c.id === id);
+const unsubAll = () => { A.unsubs.forEach(f => f()); A.unsubs = []; };
+const listen = (q, cb) => { A.unsubs.push(onSnapshot(q, s => cb(mapDocs(s)), e => console.warn(e))); };
+async function loadBase() {
+  try {
+    const [c, g] = await Promise.all([getDocs(collection(db, "centers")), getDocs(collection(db, "groups"))]);
+    A.centers = mapDocs(c).sort(byName); A.groups = mapDocs(g).sort(byName);
+  } catch (e) { console.error("LoadBase Error:", e); toast("خطأ في تحميل البيانات (تأكد من قواعد الأمان)", "err"); }
+}
+async function loadStudents(force) { if (!A.students || force) A.students = mapDocs(await getDocs(collection(db, "students"))); return A.students; }
+const activeGroups = () => A.groups.filter(g => g.active !== false);
+async function audit(action, targetType, targetId, details = {}, reason = "") {
+  try { await addDoc(collection(db, "auditLogs"), { actorId: A.user.uid, actorName: A.name, actorRole: A.role, action, targetType, targetId, details, reason, at: serverTimestamp() }); } catch(e) {}
+}
+const sessionFields = (g, date) => ({ groupId: g.id, groupName: g.name, centerId: g.centerId, centerName: (cById(g.centerId) || {}).name || g.centerName || "", date, startsAt: Timestamp.fromDate(cairoInstant(date, g.start)), endsAt: Timestamp.fromDate(cairoInstant(date, g.end)), status: "open", createdBy: A.user.uid, createdAt: serverTimestamp() });
+async function ensureSession(g, date) {
+  const ref = doc(db, "sessions", `${g.id}_${date}`); let s = await getDoc(ref);
+  if (!s.exists()) { try { await setDoc(ref, sessionFields(g, date)); } catch (e) { s = await getDoc(ref); if (!s.exists()) throw e; } s = await getDoc(ref); }
+  return { id: s.id, ...s.data() };
+}
+
+function renderLogin(msg) {
+  app.innerHTML = `<main><div class="card auth"><div class="logo" style="justify-content:center"><span class="mark">√</span><span>المصطفى في الرياضيات<small>لوحة الإدارة</small></span></div>
+  <form data-submit="login"><label>البريد الإلكتروني</label><input name="email" type="email" autocomplete="username" required dir="ltr">
+  <label>كلمة المرور</label><input name="pw" type="password" autocomplete="current-password" required>
+  ${msg ? `<div class="err">${esc(msg)}</div>` : ""}<button class="btn" style="width:100%;margin-top:14px" type="submit">دخول</button></form>
+  <div class="phrase" style="padding:8px">كل مسألة ليها حل</div></div></main>`;
+}
+ACT.login = async f => {
+  const v = formData(f);
+  if (v.email.trim() === ADMIN_EMAIL && v.pw === ADMIN_PASSWORD) {
+    localStorage.setItem("isAdminLoggedIn", "true");
+    await loadBase(); renderShell(); route();
+  } else {
+    throw { message: "بيانات الدخول غير صحيحة" };
+  }
+};
+ACT.logout = async () => { localStorage.removeItem("isAdminLoggedIn"); location.hash = "#/"; location.reload(); };
+
+const NAV_T = [["dashboard", "الرئيسية"], ["students", "الطلاب"], ["attendance", "الحضور والغياب"], ["scan", "مسح QR"], ["centers", "السناتر والمجموعات"], ["homework", "الواجبات"], ["exams", "الامتحانات"], ["notifs", "الإشعارات"], ["assistants", "المساعدون"], ["reports", "التقارير"], ["settings", "الإعدادات"]];
+const navItems = () => NAV_T;
+function renderShell() {
+  app.innerHTML = `<header class="top"><a class="logo" href="#/dashboard"><span class="mark">√</span><span>المصطفى في الرياضيات<small>لوحة الإدارة</small></span></a><span class="sp"></span>
+  <span class="chip ok">المدرس الرئيسي</span><span class="sm b" style="max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(A.name)}</span><button class="btn ghost sm" data-act="logout">خروج</button></header>
+  <nav class="pills" id="nav">${navItems().map(([k, t]) => `<a href="#/${k}" data-k="${k}">${t}</a>`).join("")}</nav><main id="view"></main><footer class="f">مع المصطفى، كل معادلة ليها حل 💚</footer>`;
+}
+const V = {};
+async function route() {
+  unsubAll(); if(typeof stopScan === 'function') stopScan();
+  let r = (location.hash || "#/").slice(2).split("?")[0] || "dashboard";
+  if (!navItems().some(n => n[0] === r)) r = "dashboard";
+  $$("#nav a").forEach(a => a.classList.toggle("on", a.dataset.k === r));
+  const el = $("#view"); if(!el) return; el.innerHTML = `<div class="spin"></div>`;
+  try { await V[r](el); } catch (e) { console.error(e); el.innerHTML = `<div class="err">${esc(errMsg(e))}</div>`; }
+  window.scrollTo(0, 0);
+}
+const rerender = () => route();
+window.addEventListener("hashchange", () => route());
+
+async function ensureToday(date) {
+  const dow = dowOf(date); const gs = activeGroups().filter(g => (g.days || []).includes(dow)); const out = [];
+  for (const g of gs) { try { out.push({ g, s: await ensureSession(g, date) }); } catch (e) { console.warn("session", g.name, e); out.push({ g, s: null }); } }
+  return out;
+}
+V.dashboard = async el => {
+  const today = todayStr(), dow = dowOf(today), todayGroups = activeGroups().filter(g => (g.days || []).includes(dow));
+  const [total, ens] = await Promise.all([getCountFromServer(collection(db, "students")).then(s => s.data().count).catch(() => 0),
+  Promise.all(todayGroups.map(g => getCountFromServer(query(collection(db, "groupEnrollments"), where("groupId", "==", g.id), where("active", "==", true))).then(s => s.data().count)))]);
+  const sess = await ensureToday(today);
+  const D = { recs: [], open: [] };
+  const expectedByGroup = Object.fromEntries(todayGroups.map((g, i) => [g.id, ens[i]]));
+  const expected = ens.reduce((a, b) => a + b, 0);
+  const draw = () => {
+    const ids = new Set(todayGroups.map(g => g.id)), rs = D.recs.filter(r => ids.has(r.groupId));
+    const st = attStats(rs), pend = Math.max(0, expected - st.total), now = Date.now();
+    const late = D.open.filter(s => s.endsAt && s.endsAt.toMillis() + 60 * 60000 < now);
+    $("#dash").innerHTML = `
+    <div class="grid g4">
+      <div class="stat"><b>${total}</b><span>إجمالي الطلاب المسجلين</span></div>
+      <div class="stat"><b>${expected}</b><span>طلاب حصص اليوم</span></div>
+      <div class="stat ok"><b>${st.p}</b><span>الحاضرون اليوم</span></div>
+      <div class="stat bad"><b>${st.a}</b><span>الغائبون اليوم</span></div>
+      <div class="stat warn"><b>${st.e}</b><span>المستأذنون اليوم</span></div>
+      <div class="stat"><b>${A.centers.length}</b><span>السناتر</span></div>
+      <div class="stat"><b>${activeGroups().length}</b><span>المجموعات</span></div>
+      <div class="stat"><b>${st.pct === null ? "—" : st.pct + "%"}</b><span>نسبة حضور اليوم</span></div></div>
+    ${late.length ? `<div class="card" style="border-color:var(--amb)"><h3>⚠ تنبيهات</h3>${late.map(s => `<div class="row" style="justify-content:space-between;padding:6px 0"><span>حصة <b>${esc(s.groupName)}</b> انتهت ولم تُغلق</span><button class="btn sm amb" data-act="closeSession" data-id="${esc(s.id)}">إغلاق</button></div>`).join("")}</div>` : ""}
+    <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">حصص اليوم (${esc(fmtDate(today))})</h3><a class="btn ghost sm" href="#/attendance">كل الحصص</a></div>
+      ${sess.length ? `<div class="list">${sess.map(({ g, s }) => { const rr = rs.filter(r => r.groupId === g.id), x = attStats(rr); return `<div><span><b>${esc(g.name)}</b> <span class="mut">— ${esc((cById(g.centerId) || {}).name || "")}</span><div class="sm mut">${esc(fmtTime(g.start))} – ${esc(fmtTime(g.end))} • حاضر ${x.p} • غائب ${x.a}</div></span>
+        <span class="row">${s ? (s.status === "open" ? `<span class="chip warn">مفتوحة</span>` : `<span class="chip ok">مغلقة</span>`) : `<span class="chip bad">تعذر إنشاؤها</span>`}${s ? `<a class="btn ghost sm" href="#/attendance?s=${esc(s.id)}&date=${today}">فتح</a>` : ""}</span></div>`; }).join("")}</div>` : `<div class="empty">لا توجد حصص مجدولة اليوم 🎉</div>`}</div>`;
+  };
+  el.innerHTML = `<h2>أهلًا أستاذ محمد 👋</h2><div id="dash"></div>
+  <h3 style="margin-top:18px">الوصول السريع</h3><div class="grid g4">${[["students", "👥", "إدارة الطلاب"], ["attendance", "✅", "تسجيل الحضور والغياب"], ["centers", "📍", "السناتر والمجموعات"], ["homework", "📝", "الواجبات"], ["exams", "📊", "الامتحانات والدرجات"], ["notifs", "🔔", "الإشعارات"], ["assistants", "🧑‍🏫", "المساعدون والمشرفون"], ["reports", "📈", "التقارير والإحصائيات"], ["settings", "⚙️", "إعدادات المنصة"]].map(([k, i, t]) => `<a class="card" href="#/${k}" style="display:block;color:inherit"><div style="font-size:1.6rem">${i}</div><b class="sm">${t}</b></a>`).join("")}</div>
+  <div class="phrase">${rnd(PHRASES)}</div>`;
+  draw();
+  listen(query(collection(db, "attendanceRecords"), where("date", "==", today)), l => { D.recs = l; draw(); });
+  listen(query(collection(db, "sessions"), where("status", "==", "open")), l => { D.open = l; draw(); });
+};
+
+V.students = async el => {
+  const [sts, en] = await Promise.all([loadStudents(true), getDocs(query(collection(db, "groupEnrollments"), where("active", "==", true))).then(mapDocs)]);
+  const gOf = id => en.filter(e => e.studentId === id).map(e => gById(e.groupId)).filter(Boolean);
+  const grades = [...new Set(sts.map(s => s.grade))].filter(Boolean);
+  el.innerHTML = `<div class="row" style="justify-content:space-between"><h2>الطلاب <span class="chip" id="cnt"></span></h2></div>
+  <div class="bar"><input class="grow" id="sq" placeholder="ابحث بالاسم أو التليفون"><select id="sg"><option value="">كل السنوات</option>${grades.map(g => `<option>${esc(g)}</option>`).join("")}</select></div>
+  <div class="tw"><table><thead><tr><th>الاسم</th><th>الكود</th><th>التليفون</th><th>السنة</th><th>المجموعة</th><th>الحالة</th></tr></thead><tbody id="stb"></tbody></table></div>`;
+  let shown = [];
+  const draw = () => {
+    const q = normPhone($("#sq").value) || $("#sq").value.trim(), qt = $("#sq").value.trim(), g = $("#sg").value;
+    shown = sts.filter(s => (!qt || s.name.includes(qt) || s.phone.includes(q) || s.code === qt) && (!g || s.grade === g)).sort(byName);
+    $("#cnt").textContent = shown.length + " من " + sts.length;
+    $("#stb").innerHTML = shown.slice(0, 300).map(s => `<tr style="cursor:pointer" data-act="stuOpen" data-id="${esc(s.id)}"><td><b>${esc(s.name)}</b></td><td>${esc(s.code)}</td><td dir="ltr">${esc(s.phone)}</td><td>${esc(s.grade)}</td><td>${gOf(s.id).map(x => esc(x.name)).join("، ") || "—"}</td><td>${s.active ? `<span class="chip ok">نشط</span>` : `<span class="chip">معطّل</span>`}</td></tr>`).join("") || `<tr><td colspan=6 class="empty">لا يوجد طلاب</td></tr>`;
+  };
+  ["input", "change"].forEach(ev => $$("#sq,#sg").forEach(i => i.addEventListener(ev, draw))); draw();
+};
+ACT.stuOpen = async t => {
+  const id = t.dataset.id, s = (A.students || []).find(x => x.id === id) || { id, ...(await getDoc(doc(db, "students", id))).data() };
+  const [rc, tr, rs, en] = await Promise.all([getDocs(query(collection(db, "attendanceRecords"), where("studentId", "==", id))), getDocs(query(collection(db, "homeworkTracking"), where("studentId", "==", id))), getDocs(query(collection(db, "examResults"), where("studentId", "==", id))), getDocs(query(collection(db, "groupEnrollments"), where("studentId", "==", id)))]);
+  const recs = sortRecs(mapDocs(rc)), st = attStats(recs), hw = mapDocs(tr), res = mapDocs(rs), ens = mapDocs(en);
+  const cur = ens.filter(e => e.active);
+  const m = openModal("بطاقة الطالب", `<h3>${esc(s.name)} ${s.active ? `<span class="chip ok">نشط</span>` : `<span class="chip">معطّل</span>`}</h3>
+  <dl class="kv"><dt>الكود</dt><dd>${esc(s.code)}</dd><dt>تليفون الطالب</dt><dd dir="ltr" style="text-align:right">${esc(s.phone)}</dd><dt>السنة</dt><dd>${esc(s.grade)}</dd><dt>المجموعة</dt><dd>${cur.map(e => esc((gById(e.groupId) || {}).name || "")).join("، ") || "—"}</dd></dl>
+  <div class="row" style="margin:10px 0"><button class="btn sm red" data-act="stuToggle" data-id="${esc(id)}">${s.active ? "تعطيل الحساب" : "تفعيل الحساب"}</button></div>
+  <h3>الحضور — <span class="sm mut">حضور ${st.p} • غياب ${st.a} • نسبة ${st.pct === null ? "—" : st.pct + "%"}</span></h3>`, true);
+};
+
+V.attendance = async el => {
+  el.innerHTML = `<h2>الحضور والغياب</h2><div class="card c"><p class="mut">أضف سناتر ومجموعات أولاً لكي تظهر الحصص هنا.</p></div>`;
+};
+
+V.scan = async el => {
+  el.innerHTML = `<h2>تسجيل الحضور</h2><div class="card c"><p class="mut">ميزة الكاميرا تحتاج لتشغيل الموقع على استضافة https.</p></div>`;
+};
+
+V.centers = async el => {
+  const counts = await Promise.all(A.groups.map(g => getCountFromServer(query(collection(db, "groupEnrollments"), where("groupId", "==", g.id), where("active", "==", true))).then(s => s.data().count).catch(() => 0)));
+  const cnt = Object.fromEntries(A.groups.map((g, i) => [g.id, counts[i]]));
+  el.innerHTML = `<div class="row" style="justify-content:space-between"><h2>السناتر والمجموعات</h2><div class="row"><button class="btn" data-act="centerForm">+ سنتر</button><button class="btn ghost" data-act="groupForm">+ مجموعة</button></div></div>
+  ${A.centers.map(c => { const gs = A.groups.filter(g => g.centerId === c.id); return `<div class="card"><div class="row" style="justify-content:space-between"><div><h3 style="margin:0">📍 ${esc(c.name)}</h3><div class="sm mut">${esc(c.address || "")} • ${gs.length} مجموعة</div></div><button class="btn ghost sm" data-act="centerForm" data-id="${esc(c.id)}">تعديل</button></div>
+    <div class="list">${gs.map(g => `<div><span><b>${esc(g.name)}</b> <span class="chip">${esc(g.grade)}</span><div class="sm mut">${esc(sched(g))} • ${cnt[g.id] || 0} طالب</div></span><span class="row"><button class="btn ghost sm" data-act="groupStudents" data-id="${esc(g.id)}">الطلاب</button><button class="btn ghost sm" data-act="groupForm" data-id="${esc(g.id)}">تعديل</button></span></div>`).join("") || `<div class="mut">لا توجد مجموعات</div>`}</div></div>`; }).join("") || `<div class="empty">ابدأ بإضافة سنتر ثم المجموعات</div>`}`;
+};
+ACT.centerForm = t => {
+  const c = t.dataset.id ? cById(t.dataset.id) : {};
+  const m = openModal(c.id ? "تعديل سنتر" : "سنتر جديد", `<form data-submit="centerSave"><label>اسم السنتر</label><input name="name" value="${esc(c.name || "")}" required><label>العنوان (اختياري)</label><input name="address" value="${esc(c.address || "")}"><button class="btn" type="submit" style="margin-top:12px">حفظ</button></form>`);
+  $("form", m).dataset.id = c.id || "";
+};
+ACT.centerSave = async f => {
+  const v = formData(f), id = f.dataset.id, data = { name: v.name.trim(), address: v.address.trim() };
+  if (id) { await updateDoc(doc(db, "centers", id), data); await audit("center_edit", "center", id, data); } else { const r = await addDoc(collection(db, "centers"), { ...data, createdAt: serverTimestamp() }); await audit("center_create", "center", r.id, data); }
+  await loadBase(); closeModals(); toast("تم الحفظ"); rerender();
+};
+ACT.groupForm = t => {
+  if (!A.centers.length) { toast("أضف سنتر أولًا", "err"); return; }
+  const g = t.dataset.id ? gById(t.dataset.id) : { days: [], start: "16:00", end: "18:00", active: true }, grades = [...new Set(A.groups.map(x => x.grade))].filter(Boolean);
+  const m = openModal(g.id ? "تعديل مجموعة" : "مجموعة جديدة", `<form data-submit="groupSave"><label>اسم المجموعة</label><input name="name" value="${esc(g.name || "")}" required>
+  <label>السنتر</label><select name="centerId" required>${A.centers.map(c => `<option value="${esc(c.id)}" ${c.id === g.centerId ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select>
+  <label>المرحلة / السنة الدراسية</label><input name="grade" list="gl" value="${esc(g.grade || "")}" required><datalist id="gl">${grades.map(x => `<option value="${esc(x)}">`).join("")}</datalist>
+  <label>أيام الحصص</label><div class="checks">${DAYS.map((d, i) => `<span class="chk"><input type="checkbox" name="d${i}" id="d${i}" ${(g.days || []).includes(i) ? "checked" : ""}><label for="d${i}">${d}</label></span>`).join("")}</div>
+  <div class="row"><div class="grow"><label>بداية الحصة</label><input type="time" name="start" value="${esc(g.start)}" required></div><div class="grow"><label>نهاية الحصة</label><input type="time" name="end" value="${esc(g.end)}" required></div></div>
+  <div class="chk" style="margin-top:8px"><input type="checkbox" name="active" id="ga" ${g.active !== false ? "checked" : ""}><label for="ga">المجموعة نشطة</label></div><button class="btn" type="submit" style="margin-top:12px">حفظ</button></form>`);
+  $("form", m).dataset.id = g.id || "";
+};
+ACT.groupSave = async f => {
+  const v = formData(f), id = f.dataset.id, days = [0, 1, 2, 3, 4, 5, 6].filter(i => v["d" + i]);
+  if (!days.length) throw { msg: "اختر يومًا واحدًا على الأقل" };
+  const dur = minutesBetween(cairoInstant("2026-01-01", v.start), cairoInstant("2026-01-01", v.end)); if (dur <= 0) throw { msg: "وقت النهاية يجب أن يكون بعد البداية" };
+  const c = cById(v.centerId), data = { name: v.name.trim(), centerId: v.centerId, centerName: c.name, grade: v.grade.trim(), days, start: v.start, end: v.end, durationMin: dur, active: !!v.active };
+  if (id) { await updateDoc(doc(db, "groups", id), data); await audit("group_edit", "group", id, data); } else { const r = await addDoc(collection(db, "groups"), { ...data, createdAt: serverTimestamp() }); await audit("group_create", "group", r.id, data); }
+  await loadBase(); closeModals(); toast("تم الحفظ"); rerender();
+};
+ACT.groupStudents = async t => {
+  const g = gById(t.dataset.id), en = mapDocs(await getDocs(query(collection(db, "groupEnrollments"), where("groupId", "==", g.id), where("active", "==", true)))).sort((a, b) => String(a.studentName).localeCompare(String(b.studentName), "ar"));
+  openModal(`طلاب ${g.name} (${en.length})`, `<div class="list">${en.map(e => `<div><span>${esc(e.studentName)}</span><span class="row"><button class="btn red sm" data-act="unenroll" data-id="${esc(e.id)}">إخراج</button></span></div>`).join("") || `<div class="empty">لا يوجد طلاب</div>`}</div>`);
+};
+ACT.unenroll = async t => { if (!confirm("إخراج الطالب من المجموعة؟")) return; await updateDoc(doc(db, "groupEnrollments", t.dataset.id), { active: false, endedAt: serverTimestamp() }); await audit("unenroll", "enrollment", t.dataset.id); closeModals(); toast("تم"); };
+
+// النهاية
+if (localStorage.getItem("isAdminLoggedIn") === "true") {
+  loadBase().then(() => { renderShell(); route(); });
+} else {
+  renderLogin();
+}
+
+</script>
+</body>
+</html>

@@ -850,4 +850,32 @@ ACT.rrun = async () => {
     const rr = tr.filter(r => okG(r.groupId)), by = [...new Set(rr.map(r => r.homeworkId))].map(id => { const x = rr.filter(r => r.homeworkId === id), yes = x.filter(r => r.done).length; return [esc((hs.find(h => h.id === id) || {}).title || id), yes, x.length - yes, Math.round(yes / x.length * 100) + "%"]; });
     A.rcsv = [["الواجب", "حلّوه", "لم يحلّوه", "النسبة"], ...by]; out.innerHTML = `<h3>متابعة الواجبات</h3>` + tbl(["الواجب", "حلّوه", "لم يحلّوه", "النسبة"], by);
   } else if (tab === "ex") {
-    const rs = mapDocs(await getDocs(query(collection(db, "examResults"), where("date", ">=", f), where("date", "<=", to)))).filter(r => okG(r.groupId)), by = [...new Set(rs.map(r => r.examId))].map(id => { const x = rs.filter(r => r.examId === id), avg = x.reduce((a, r) => a + r.score, 0) / x.length; return [esc(x[0].examName), esc(fmtDate(x[0].date)), x.length, avg.toFixed(1) + " / " + x[
+    const rs = mapDocs(await getDocs(query(collection(db, "examResults"), where("date", ">=", f), where("date", "<=", to)))).filter(r => okG(r.groupId)), by = [...new Set(rs.map(r => r.examId))].map(id => { const x = rs.filter(r => r.examId === id), avg = x.reduce((a, r) => a + r.score, 0) / x.length; return [esc(x[0].examName), esc(fmtDate(x[0].date)), x.length, avg.toFixed(1) + " / " + x[0].total, Math.round(avg / x[0].total * 100) + "%", Math.max(...x.map(r => r.score))]; });
+    A.rcsv = [["الامتحان", "التاريخ", "عدد النتائج", "المتوسط", "النسبة", "الأعلى"], ...by]; out.innerHTML = `<h3>نتائج الامتحانات</h3>` + tbl(["الامتحان", "التاريخ", "عدد النتائج", "المتوسط", "النسبة", "الأعلى"], by);
+  } else {
+    const [sts, en] = await Promise.all([loadStudents(true), getDocs(query(collection(db, "groupEnrollments"), where("active", "==", true))).then(mapDocs)]);
+    const rows = activeGroups().filter(gr => okG(gr.id)).map(gr => [esc(gr.name), esc((cById(gr.centerId) || {}).name || ""), esc(gr.grade), en.filter(e => e.groupId === gr.id).length]);
+    A.rcsv = [["المجموعة", "السنتر", "السنة", "عدد الطلاب"], ...rows];
+    out.innerHTML = `<div class="grid g4"><div class="stat"><b>${sts.length}</b><span>إجمالي الطلاب المسجلين</span></div><div class="stat ok"><b>${sts.filter(s => s.active).length}</b><span>نشطون</span></div><div class="stat"><b>${A.centers.length}</b><span>سناتر</span></div><div class="stat"><b>${activeGroups().length}</b><span>مجموعات</span></div></div><h3 style="margin-top:14px">أعداد الطلاب في المجموعات</h3>` + tbl(["المجموعة", "السنتر", "السنة", "عدد الطلاب"], rows);
+  }
+};
+
+V.settings = async el => {
+  const logs = mapDocs(await getDocs(query(collection(db, "auditLogs"), orderBy("at", "desc"), limit(40))));
+  el.innerHTML = `<h2>إعدادات المنصة</h2><div class="card"><dl class="kv"><dt>المنصة</dt><dd>المصطفى في الرياضيات</dd><dt>المدرس</dt><dd>الأستاذ محمد مصطفى</dd><dt>المنطقة الزمنية</dt><dd>Africa/Cairo</dd><dt>تسجيل الحضور</dt><dd>من 120 دقيقة قبل الحصة حتى 60 دقيقة بعد نهايتها</dd></dl>
+  <div class="row" style="margin-top:10px"><button class="btn ghost" data-act="closeAllEnded">إغلاق كل الحصص المنتهية</button></div></div>
+  <div class="card"><h3>سجل التدقيق (آخر 40 عملية)</h3><div class="tw"><table><thead><tr><th>الوقت</th><th>المنفّذ</th><th>العملية</th><th>التفاصيل</th></tr></thead><tbody>${logs.map(l => `<tr><td class="sm">${esc(fmtTs(l.at))}</td><td>${esc(l.actorName)}</td><td>${esc(l.action)}</td><td class="sm mut">${esc(l.reason || "")} ${esc(JSON.stringify(l.details || {}).slice(0, 120))}</td></tr>`).join("") || `<tr><td colspan=4 class="empty">—</td></tr>`}</tbody></table></div></div>`;
+};
+
+// Initialize App based on local storage
+if (localStorage.getItem("isAdminLoggedIn") === "true") {
+  A.role = localStorage.getItem("userRole") || "admin";
+  A.name = localStorage.getItem("userName") || "المستخدم";
+  loadBase().then(() => { renderShell(); route(); });
+} else {
+  renderLogin();
+}
+
+</script>
+</body>
+</html>

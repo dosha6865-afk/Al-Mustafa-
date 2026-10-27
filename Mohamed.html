@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#16a34a">
+<title>المصطفى في الرياضيات — موقع الطلاب</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--g:#15803d;--g2:#16a34a;--g3:#22c55e;--gl:#ecfdf5;--gl2:#d1fae5;--ink:#0f172a;--mut:#64748b;--line:#e5e7eb;--bg:#f6faf7;--red:#dc2626;--redl:#fee2e2;--amb:#b45309;--ambl:#fef3c7;--r:16px;--sh:0 1px 2px rgba(15,23,42,.05),0 4px 14px rgba(15,23,42,.06)}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:'Cairo',system-ui,-apple-system,'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;font-size:16px}
+a{color:var(--g);text-decoration:none}h1,h2,h3{margin:.2em 0 .5em;line-height:1.3}h2{font-size:1.35rem}h3{font-size:1.05rem}
+header.top{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 16px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--g)}
+.mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--g2),var(--g));color:#fff;display:grid;place-items:center;font-size:22px;font-weight:800}
+.logo small{display:block;color:var(--mut);font-weight:600;font-size:.72rem;line-height:1.1}
+.sp{flex:1}
+nav.pills{background:#fff;border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto;padding:8px 12px;position:sticky;top:59px;z-index:19;scrollbar-width:none}
+nav.pills::-webkit-scrollbar{display:none}
+nav.pills a{white-space:nowrap;padding:8px 14px;border-radius:999px;color:var(--mut);font-weight:700;font-size:.92rem;position:relative}
+nav.pills a.on{background:var(--gl2);color:var(--g)}
+nav.pills .dot{background:var(--red);color:#fff;border-radius:999px;font-size:.7rem;padding:0 6px;margin-inline-start:4px}
+main{max-width:1100px;margin:0 auto;padding:18px 16px 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
+.card+.card,.grid+.card,.card+.grid{margin-top:14px}
+.grid{display:grid;gap:12px}.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}.g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.g4{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.stat{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh)}
+.stat b{display:block;font-size:1.9rem;line-height:1.2;color:var(--ink)}.stat span{color:var(--mut);font-size:.88rem;font-weight:600}.stat small{display:block;color:var(--mut);font-size:.75rem}
+.stat.ok b{color:var(--g)}.stat.bad b{color:var(--red)}.stat.warn b{color:var(--amb)}
+.btn,button.btn{font:inherit;font-weight:700;border:0;border-radius:12px;padding:10px 18px;background:var(--g2);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;transition:.15s}
+.btn:hover{background:var(--g)}.btn:disabled{opacity:.55;cursor:wait}
+.btn.ghost{background:#fff;color:var(--g);border:1.5px solid var(--g2)}.btn.ghost:hover{background:var(--gl)}
+.btn.red{background:var(--red)}.btn.amb{background:var(--amb)}.btn.sm{min-height:34px;padding:4px 12px;font-size:.88rem;border-radius:10px}.btn.big{min-height:64px;font-size:1.25rem;width:100%;border-radius:18px}
+label{display:block;font-weight:700;font-size:.88rem;margin:10px 0 4px;color:#334155}
+input,select,textarea{font:inherit;width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);min-height:46px}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--g2);box-shadow:0 0 0 3px var(--gl2)}
+input[type=checkbox],input[type=radio]{width:auto;min-height:0;accent-color:var(--g2)}
+textarea{min-height:90px;resize:vertical}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:0 0 auto}.row .grow{flex:1 1 180px}
+.chk{display:flex;gap:8px;align-items:center;font-weight:600;margin:4px 0}.chk label{margin:0;font-weight:600}
+.checks{display:flex;flex-wrap:wrap;gap:6px 16px;padding:6px 0}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.8rem;font-weight:800;background:#f1f5f9;color:#475569}
+.chip.ok{background:var(--gl2);color:var(--g)}.chip.bad{background:var(--redl);color:var(--red)}.chip.warn{background:var(--ambl);color:var(--amb)}
+.mut{color:var(--mut)}.sm{font-size:.85rem}.c{text-align:center}.b{font-weight:800}
+table{width:100%;border-collapse:collapse;font-size:.93rem}th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:start;vertical-align:middle}th{color:var(--mut);font-size:.8rem;background:#f8fafc;position:sticky;top:0}
+.tw{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:12px;background:#fff}
+.hero{background:linear-gradient(135deg,var(--g) 0%,var(--g3) 130%);color:#fff;border-radius:22px;padding:28px 22px;box-shadow:var(--sh)}
+.hero h1{font-size:1.9rem;margin:6px 0}.hero p{margin:.2em 0;opacity:.95}
+.tag{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);padding:4px 14px;border-radius:999px;font-weight:700;margin:8px 0}
+.hero .btn{background:#fff;color:var(--g)}.hero .btn.ghost{background:transparent;color:#fff;border-color:#fff}
+.auth{max-width:440px;margin:24px auto}
+.err{background:var(--redl);color:var(--red);padding:10px 12px;border-radius:12px;font-weight:700;margin:10px 0}
+.note{background:var(--ambl);color:#78350f;padding:10px 12px;border-radius:12px;font-weight:600;margin:10px 0}
+.alertlow{background:var(--redl);border:2px solid var(--red);color:var(--red);padding:12px 14px;border-radius:16px;font-weight:800;margin:14px 0;display:flex;gap:10px;align-items:center}
+.alertlow small{display:block;font-weight:600;color:#7f1d1d}
+.empty{text-align:center;color:var(--mut);padding:26px 10px}
+.spin{width:30px;height:30px;border:4px solid var(--gl2);border-top-color:var(--g2);border-radius:50%;animation:s 1s linear infinite;margin:40px auto}@keyframes s{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 18px;border-radius:12px;z-index:99;font-weight:700;max-width:92vw;box-shadow:var(--sh)}
+.toast.ok{background:var(--g)}.toast.err{background:var(--red)}
+.mback{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.modal{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;box-shadow:var(--sh)}.modal.wide{max-width:900px}
+.mh{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff}.mb{padding:16px 18px 24px}
+.x{border:0;background:#f1f5f9;border-radius:10px;width:34px;height:34px;font-size:16px;cursor:pointer}
+@media(min-width:700px){.mback{align-items:center}.modal{border-radius:22px}}
+.big-code{font-size:2.2rem;font-weight:800;letter-spacing:.12em;color:var(--g);direction:ltr;display:inline-block}
+.qrbox{background:#fff;border:2px dashed var(--g3);border-radius:20px;padding:16px;text-align:center}
+.qrbox img{width:min(78vw,300px);height:auto;image-rendering:pixelated}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0 14px}.bar>*{flex:0 0 auto}.bar .grow{flex:1 1 200px}
+.pbar{height:10px;background:#e2e8f0;border-radius:99px;overflow:hidden}.pbar i{display:block;height:100%;background:var(--g2)}
+.phrase{color:var(--g);font-weight:800;text-align:center;padding:18px 8px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.tabs button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font:inherit;font-weight:700;cursor:pointer}.tabs button.on{background:var(--g2);color:#fff;border-color:var(--g2)}
+.list>div{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}.list>div:last-child{border:0}
+.unread{border-inline-start:5px solid var(--g2)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px}.kv dt{color:var(--mut);font-weight:700}.kv dd{margin:0;font-weight:700}
+footer.f{text-align:center;color:var(--mut);padding:20px;font-size:.85rem}
+@media print{header.top,nav.pills,.noprint,.toast,footer.f{display:none!important}body{background:#fff}main{padding:0}.card,.stat{box-shadow:none}.tw{max-height:none;overflow:visible}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+</head>
+<body>
+<div id="app"><div class="spin"></div></div>
+<noscript><p style="padding:20px">لازم تفعّل JavaScript لتشغيل الموقع.</p></noscript>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider, deleteUser } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, getDocs, updateDoc, collection, query, where, onSnapshot, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDr753V8JSOXAlH13FczH1gjIbLYwfaXJQ",
+  authDomain: "almostfa-d4666.firebaseapp.com",
+  databaseURL: "https://almostfa-d4666-default-rtdb.firebaseio.com",
+  projectId: "almostfa-d4666",
+  storageBucket: "almostfa-d4666.firebasestorage.app",
+  messagingSenderId: "40005003965",
+  appId: "1:40005003965:web:7dc9a33ead504237c265d4",
+  measurementId: "G-NM0CPYQC9N"
+};
+
+const EMAIL_DOMAIN = "mostafa-math.app";
+const TZ = "Africa/Cairo";
+const LOW_ATT = 75; // أي نسبة حضور أقل من كده تظهر تنبيه للطالب
+let fbApp = initializeApp(firebaseConfig), auth = getAuth(fbApp), db = getFirestore(fbApp);
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const DAYS = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+const PHRASES = ["كل مسألة ليها حل", "افهمها، ما تحسبهاش", "طريق التفوق بيبدأ بالمعادلة", "مع المصطفى، كل معادلة ليها حل"];
+const rnd = a => a[Math.floor(Math.random() * a.length)];
+const byName = (a, b) => String(a.name || "").localeCompare(String(b.name || ""), "ar");
+const randHex = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => b.toString(16).padStart(2, "0")).join("");
+const normPhone = s => String(s || "").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\D/g, "");
+
+const _fmt = new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+function cairoParts(d = new Date()) { const o = {}; _fmt.formatToParts(d).forEach(p => o[p.type] = p.value); return o; }
+const fmtTime = t => { const [h, m] = String(t || "0:0").split(":").map(Number); return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h >= 12 ? "م" : "ص"}`; };
+const sched = g => `${(g.days || []).map(d => DAYS[d]).join("، ")} • ${fmtTime(g.start)} – ${fmtTime(g.end)}`;
+const fmtDate = s => s ? new Date(s + "T12:00:00Z").toLocaleDateString("ar-EG", { timeZone: "UTC", weekday: "short", day: "numeric", month: "short", year: "numeric" }) : "";
+const fmtTs = t => t && t.toDate ? t.toDate().toLocaleString("ar-EG", { timeZone: TZ, dateStyle: "medium", timeStyle: "short" }) : "";
+
+function toast(m, t = "ok") { const d = document.createElement("div"); d.className = "toast " + t; d.textContent = m; document.body.appendChild(d); setTimeout(() => d.remove(), 4200); }
+function openModal(title, html, wide) {
+  const w = document.createElement("div"); w.className = "mback";
+  w.innerHTML = `<div class="modal ${wide ? "wide" : ""}"><div class="mh"><b>${esc(title)}</b><button class="x" data-close aria-label="إغلاق">✕</button></div><div class="mb">${html}</div></div>`;
+  w.addEventListener("click", e => { if (e.target === w || e.target.closest("[data-close]")) w.remove(); });
+  document.body.appendChild(w); return w;
+}
+function errMsg(e) {
+  const c = e && (e.code || ""); if (e && e.msg) return e.msg;
+  const M = {
+    "auth/invalid-credential": "بيانات الدخول غير صحيحة", "auth/wrong-password": "كلمة المرور غير صحيحة", "auth/user-not-found": "الحساب غير موجود",
+    "auth/invalid-email": "صيغة البريد غير صحيحة", "auth/email-already-in-use": "هذا الحساب موجود بالفعل", "auth/weak-password": "كلمة المرور ضعيفة (6 أحرف على الأقل)",
+    "auth/too-many-requests": "محاولات كثيرة، انتظر قليلًا ثم حاول مرة أخرى", "auth/network-request-failed": "مشكلة في الاتصال بالإنترنت",
+    "auth/operation-not-allowed": "فعّل Email/Password من Authentication في Firebase", "auth/requires-recent-login": "سجّل الدخول من جديد ثم أعد المحاولة",
+    "permission-denied": "ليس لديك صلاحية لتنفيذ هذا الإجراء (أو أن القواعد لم تُنشر بعد)", "unavailable": "الخدمة غير متاحة الآن، تأكد من الإنترنت",
+    "failed-precondition": "يلزم إنشاء فهرس أو إعداد في Firebase: " + (e && e.message || ""), "not-found": "العنصر غير موجود"
+  };
+  return M[c] || ("حدث خطأ: " + (e && e.message || e));
+}
+async function run(el, fn) {
+  const b = el && el.closest ? el.closest("button,.btn") : null; if (b) b.disabled = true;
+  try { return await fn(); } catch (e) { console.error(e); toast(errMsg(e), "err"); } finally { if (b) b.disabled = false; }
+}
+const ACT = {};
+document.addEventListener("click", e => { const t = e.target.closest("[data-act]"); if (!t) return; const f = ACT[t.dataset.act]; if (f) { if (t.tagName === "A") e.preventDefault(); run(t, () => f(t, e)); } });
+document.addEventListener("submit", e => { const f = e.target.closest("form[data-submit]"); if (!f) return; e.preventDefault(); const fn = ACT[f.dataset.submit]; if (fn) run(f.querySelector("button[type=submit]"), () => fn(f, e)); });
+const formData = f => Object.fromEntries(new FormData(f));
+const statusChip = s => s === "present" ? `<span class="chip ok">حاضر</span>` : s === "absent" ? `<span class="chip bad">غائب</span>` : s === "excused" ? `<span class="chip warn">مستأذن</span>` : `<span class="chip">—</span>`;
+function attStats(recs) {
+  const p = recs.filter(r => r.status === "present").length, a = recs.filter(r => r.status === "absent").length, e = recs.filter(r => r.status === "excused").length;
+  const base = p + a; return { p, a, e, total: p + a + e, pct: base ? Math.round(p / base * 100) : null };
+}
+const sortRecs = rs => [...rs].sort((x, y) => String(y.date).localeCompare(String(x.date)) || ((y.markedAt?.seconds || 0) - (x.markedAt?.seconds || 0)));
+const mapDocs = s => s.docs.map(d => ({ id: d.id, ...d.data() }));
+// تنبيه انخفاض الحضور
+const lowAlert = st => (st.pct !== null && st.pct < LOW_ATT) ? `<div class="alertlow"><span style="font-size:1.8rem">⚠️</span><div>نسبة حضورك ${st.pct}% وهي أقل من ${LOW_ATT}%<small>لازم تنتظم في الحضور عشان ما يأثرش على مستواك.</small></div></div>` : "";
+
+const app = $("#app");
+const S = { stu: null, uid: null, centers: [], groups: [], enrolls: [], records: [], inbox: [], results: [], tracks: [], hw: null, hwKey: "", unsubs: [], hwUnsub: null, registering: false, ready: false };
+const NAV = [["home", "الرئيسية"], ["groups", "السناتر والمجموعات"], ["track", "المتابعة"], ["homework", "الواجبات"], ["exams", "الامتحانات"], ["notifications", "الإشعارات"], ["qr", "كود QR"], ["account", "حسابي"]];
+const activeEnrolls = () => S.enrolls.filter(e => e.active);
+const myGroups = () => activeEnrolls().map(e => S.groups.find(g => g.id === e.groupId)).filter(Boolean);
+const unreadCount = () => S.inbox.filter(n => !n.read).length;
+const qrText = () => `MSTF1|${S.uid}|${S.stu.qrToken}`;
+
+async function loadPublic() {
+  const [c, g] = await Promise.all([getDocs(collection(db, "centers")), getDocs(collection(db, "groups"))]);
+  S.centers = mapDocs(c).sort(byName); S.groups = mapDocs(g).filter(x => x.active !== false).sort(byName);
+}
+function stopListeners() { S.unsubs.forEach(f => f()); S.unsubs = []; if (S.hwUnsub) { S.hwUnsub(); S.hwUnsub = null; } S.hw = null; S.hwKey = ""; }
+
+// الواجبات: متابعة حية، وتتحدث تلقائيًا لما تتغير مجموعات الطالب أو المدرس يضيف واجب
+function watchHomework() {
+  const ids = activeEnrolls().map(e => e.groupId).slice(0, 30), key = ids.slice().sort().join(",");
+  if (key === S.hwKey && S.hw !== null) return;
+  S.hwKey = key; if (S.hwUnsub) { S.hwUnsub(); S.hwUnsub = null; }
+  if (!ids.length) { S.hw = []; return; }
+  S.hwUnsub = onSnapshot(query(collection(db, "homework"), where("groupIds", "array-contains-any", ids)), s => { S.hw = mapDocs(s); softRender(); }, e => { console.warn("homework", e); S.hw = []; softRender(); });
+}
+
+// لا نعيد الرسم والطالب بيكتب في حقل (عشان ما يتفرغش اللي كتبه)
+let rt = null;
+const softRender = () => {
+  clearTimeout(rt);
+  rt = setTimeout(() => {
+    const a = document.activeElement;
+    if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && app.contains(a)) { rt = setTimeout(softRender, 1500); return; }
+    render();
+  }, 60);
+};
+function startListeners(uid) {
+  stopListeners();
+  const L = (q, key, after) => S.unsubs.push(onSnapshot(q, s => { S[key] = mapDocs(s); if (after) after(); softRender(); }, e => console.warn(key, e)));
+  L(query(collection(db, "groupEnrollments"), where("studentId", "==", uid)), "enrolls", watchHomework);
+  L(query(collection(db, "attendanceRecords"), where("studentId", "==", uid)), "records");
+  L(query(collection(db, "inbox"), where("studentId", "==", uid)), "inbox");
+  L(query(collection(db, "examResults"), where("studentId", "==", uid), where("published", "==", true)), "results");
+  L(query(collection(db, "homeworkTracking"), where("studentId", "==", uid)), "tracks");
+  S.unsubs.push(onSnapshot(doc(db, "students", uid), s => { if (s.exists()) { S.stu = { id: uid, ...s.data() }; softRender(); } }));
+}
+
+onAuthStateChanged(auth, async u => {
+  S.uid = u ? u.uid : null;
+  if (!u) { stopListeners(); S.stu = null; S.enrolls = S.records = S.inbox = S.results = S.tracks = []; S.ready = true; try { await loadPublic(); } catch (e) { console.warn(e); } render(); return; }
+  if (S.registering) return;
+  try {
+    const sn = await getDoc(doc(db, "students", u.uid));
+    if (!sn.exists()) { await signOut(auth); toast("هذا الحساب ليس حساب طالب", "err"); return; }
+    if (sn.data().active === false) { await signOut(auth); toast("هذا الحساب معطّل، تواصل مع الإدارة", "err"); return; }
+    S.stu = { id: u.uid, ...sn.data() };
+    await loadPublic(); startListeners(u.uid);
+  } catch (e) { console.error(e); toast(errMsg(e), "err"); }
+  S.ready = true; render();
+});
+window.addEventListener("hashchange", render);
+
+const PRIV = NAV.map(n => n[0]);
+function shell(inner, active) {
+  const logged = !!S.stu;
+  app.innerHTML = `<header class="top"><a class="logo" href="#/${logged ? "home" : ""}"><span class="mark">√</span><span>المصطفى في الرياضيات<small>الأستاذ محمد مصطفى</small></span></a><span class="sp"></span>
+    ${logged ? `<button class="btn ghost sm" data-act="logout">خروج</button>` : `<a class="btn ghost sm" href="#/login">دخول</a><a class="btn sm" href="#/signup">حساب جديد</a>`}</header>
+    ${logged ? `<nav class="pills">${NAV.map(([k, t]) => `<a href="#/${k}" class="${k === active ? "on" : ""}">${t}${k === "notifications" && unreadCount() ? `<span class="dot">${unreadCount()}</span>` : ""}</a>`).join("")}</nav>` : ""}
+    <main>${inner}</main><footer class="f">${rnd(PHRASES)} 💚</footer>`;
+}
+ACT.logout = async () => { await signOut(auth); location.hash = "#/"; };
+
+function render() {
+  const r = (location.hash || "#/").slice(2).split("?")[0];
+  if (!S.ready) { app.innerHTML = `<div class="spin"></div>`; return; }
+  if (S.stu && ["", "login", "signup"].includes(r)) { location.hash = "#/home"; return; }
+  if (!S.stu && PRIV.includes(r)) { location.hash = "#/login"; return; }
+  const v = V[r] || V[""]; v();
+  if (S.stu) window.scrollTo(0, window.scrollY);
+}
+
+const grpLine = g => { const c = S.centers.find(x => x.id === g.centerId); return `<b>${esc(g.name)}</b> <span class="mut">— ${esc(c ? c.name : g.centerName || "")}</span><div class="sm mut">${esc(sched(g))}</div>`; };
+const V = {};
+
+V[""] = () => shell(`
+  <section class="hero"><div class="mark" style="width:54px;height:54px;font-size:32px;background:#fff;color:var(--g)">√</div>
+    <h1>المصطفى في الرياضيات</h1><p>مع الأستاذ محمد مصطفى</p><span class="tag">كل مسألة ليها حل</span>
+    <p>سجّل حسابك، اختار السنتر والمجموعة المناسبين، وتابع حضورك وواجباتك ودرجاتك من موبايلك.</p>
+    <div class="row" style="margin-top:12px"><a class="btn" href="#/signup">إنشاء حساب جديد</a><a class="btn ghost" href="#/login">تسجيل الدخول</a></div></section>
+  <div class="grid g3" style="margin-top:14px">
+    <div class="card"><h3>📱 كود QR خاص بيك</h3><p class="mut">اعرض الكود عند مدخل السنتر وهيتسجل حضورك في ثانية.</p></div>
+    <div class="card"><h3>📝 متابعة الواجبات</h3><p class="mut">اعرف الواجب المطلوب وحالته أولًا بأول.</p></div>
+    <div class="card"><h3>📊 النتائج والإشعارات</h3><p class="mut">درجاتك وإشعارات مجموعتك في مكان واحد.</p></div></div>
+  <div class="phrase">افهمها، ما تحسبهاش</div>`, "");
+
+V.login = () => shell(`<div class="card auth"><h2>تسجيل الدخول</h2><p class="mut">ادخل برقم التليفون أو كود الطالب.</p>
+  <form data-submit="login"><label>رقم التليفون أو كود الطالب</label><input name="id" inputmode="numeric" autocomplete="username" required placeholder="01xxxxxxxxx أو 123456">
+  <label>كلمة المرور</label><input name="pw" type="password" autocomplete="current-password" required>
+  <div id="lerr"></div><button class="btn" style="width:100%;margin-top:14px" type="submit">دخول</button></form>
+  <p class="c sm">ليس لديك حساب؟ <a href="#/signup">أنشئ حسابًا</a></p><div class="phrase" style="padding:6px">مع المصطفى، كل معادلة ليها حل</div></div>`, "");
+ACT.login = async f => {
+  const { id, pw } = formData(f); const x = normPhone(id); let code;
+  if (/^01\d{9}$/.test(x)) {
+    const pi = await getDoc(doc(db, "phoneIndex", x));
+    if (!pi.exists()) throw { msg: "لا يوجد حساب بهذا الرقم" };
+    code = pi.data().code;
+  } else if (/^\d{6}$/.test(x)) code = x; else throw { msg: "أدخل رقم تليفون صحيح (11 رقم) أو كود الطالب (6 أرقام)" };
+  await signInWithEmailAndPassword(auth, `${code}@${EMAIL_DOMAIN}`, pw);
+};
+
+V.signup = () => {
+  const grades = [...new Set(S.groups.map(g => g.grade))].filter(Boolean);
+  shell(`<div class="card auth" style="max-width:520px"><h2>إنشاء حساب طالب</h2><p class="mut">طريق التفوق بيبدأ بالمعادلة.</p>
+  ${grades.length ? "" : `<div class="note">لم يضف المدرس أي مجموعات بعد، حاول لاحقًا.</div>`}
+  <form data-submit="signup" id="sf">
+  <label>الاسم الكامل</label><input name="name" required minlength="3" maxlength="80" autocomplete="name">
+  <label>رقم تليفون الطالب</label><input name="phone" inputmode="numeric" required placeholder="01xxxxxxxxx" maxlength="11">
+  <label>رقم تليفون ولي الأمر</label><input name="parent" inputmode="numeric" required placeholder="01xxxxxxxxx" maxlength="11">
+  <label>السنة الدراسية</label><select name="grade" id="sg" required><option value="">اختر السنة</option>${grades.map(g => `<option>${esc(g)}</option>`).join("")}</select>
+  <label>السنتر</label><select name="center" id="sc" required disabled><option value="">اختر السنة أولًا</option></select>
+  <label>المجموعة والموعد</label><select name="groupId" id="sgr" required disabled><option value="">اختر السنتر أولًا</option></select>
+  <label>كلمة المرور (6 أحرف على الأقل)</label><input name="pw" type="password" minlength="6" required autocomplete="new-password">
+  <label>تأكيد كلمة المرور</label><input name="pw2" type="password" minlength="6" required autocomplete="new-password">
+  <button class="btn" style="width:100%;margin-top:14px" type="submit" ${grades.length ? "" : "disabled"}>إنشاء الحساب</button></form>
+  <p class="c sm">لديك حساب؟ <a href="#/login">سجّل الدخول</a></p></div>`, "");
+  const sg = $("#sg"), sc = $("#sc"), sgr = $("#sgr");
+  sg && sg.addEventListener("change", () => {
+    const cs = [...new Set(S.groups.filter(g => g.grade === sg.value).map(g => g.centerId))];
+    sc.innerHTML = `<option value="">اختر السنتر</option>` + cs.map(id => `<option value="${esc(id)}">${esc((S.centers.find(c => c.id === id) || {}).name || id)}</option>`).join(""); sc.disabled = !sg.value;
+    sgr.innerHTML = `<option value="">اختر السنتر أولًا</option>`; sgr.disabled = true;
+  });
+  sc && sc.addEventListener("change", () => {
+    const gs = S.groups.filter(g => g.grade === sg.value && g.centerId === sc.value);
+    sgr.innerHTML = `<option value="">اختر المجموعة</option>` + gs.map(g => `<option value="${esc(g.id)}">${esc(g.name)} — ${esc(sched(g))}</option>`).join(""); sgr.disabled = !sc.value;
+  });
+};
+ACT.signup = async f => {
+  const v = formData(f), name = v.name.trim().replace(/\s+/g, " "), phone = normPhone(v.phone), parent = normPhone(v.parent);
+  if (name.length < 3) throw { msg: "اكتب الاسم الكامل" };
+  if (!/^01\d{9}$/.test(phone)) throw { msg: "رقم تليفون الطالب غير صحيح (11 رقم يبدأ بـ 01)" };
+  if (!/^01\d{9}$/.test(parent)) throw { msg: "رقم ولي الأمر غير صحيح (11 رقم يبدأ بـ 01)" };
+  if (phone === parent) throw { msg: "رقم الطالب يجب أن يختلف عن رقم ولي الأمر" };
+  if (v.pw.length < 6) throw { msg: "كلمة المرور 6 أحرف على الأقل" };
+  if (v.pw !== v.pw2) throw { msg: "كلمتا المرور غير متطابقتين" };
+  const g = S.groups.find(x => x.id === v.groupId); if (!g) throw { msg: "اختر المجموعة" };
+  S.registering = true; let cred = null;
+  try {
+    if ((await getDoc(doc(db, "phoneIndex", phone))).exists()) throw { msg: "رقم التليفون مسجل بالفعل، سجّل الدخول بدلًا من ذلك" };
+    let code;
+    for (let i = 0; i < 10 && !cred; i++) {
+      code = String(Math.floor(100000 + Math.random() * 900000));
+      try { cred = await createUserWithEmailAndPassword(auth, `${code}@${EMAIL_DOMAIN}`, v.pw); } catch (e) { if (e.code !== "auth/email-already-in-use") throw e; }
+    }
+    if (!cred) throw { msg: "تعذر إنشاء كود فريد، حاول مرة أخرى" };
+    const uid = cred.user.uid, b = writeBatch(db);
+    b.set(doc(db, "students", uid), { code, name, phone, parentPhone: parent, grade: g.grade, active: true, qrToken: randHex(24), currentGroupId: g.id, currentCenterId: g.centerId, createdAt: serverTimestamp() });
+    b.set(doc(db, "groupEnrollments", `${uid}_${g.id}`), { studentId: uid, studentName: name, groupId: g.id, centerId: g.centerId, grade: g.grade, active: true, joinedAt: serverTimestamp() });
+    b.set(doc(db, "phoneIndex", phone), { code, uid, createdAt: serverTimestamp() });
+    b.set(doc(db, "users", uid), { name, role: "student", active: true, createdAt: serverTimestamp() });
+    try { await b.commit(); } catch (e) { try { await deleteUser(cred.user); } catch (_) { } throw e; }
+    const sn = await getDoc(doc(db, "students", uid)); S.stu = { id: uid, ...sn.data() }; S.uid = uid;
+    startListeners(uid); S.registering = false; S.ready = true;
+    toast("تم إنشاء حسابك بنجاح ✓"); location.hash = "#/home"; render();
+    openModal("حسابك جاهز 🎉", `<div class="c"><p>كود الطالب الخاص بك (اسم المستخدم):</p><div class="big-code">${esc(S.stu.code)}</div><p class="mut sm">احتفظ به. تقدر تدخل به أو برقم تليفونك مع كلمة المرور.</p><button class="btn" data-close>تمام</button></div>`);
+  } finally { S.registering = false; }
+};
+
+V.home = () => {
+  const st = attStats(S.records), gs = myGroups(), last = sortRecs(S.records).slice(0, 4), news = [...S.inbox].sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)).slice(0, 3);
+  shell(`<div class="hero"><h2 style="margin:0">أهلًا ${esc(S.stu.name.split(" ")[0])} 👋</h2><span class="tag">${rnd(PHRASES)}</span>
+    <div class="row"><div>كودك: <span class="big-code" style="color:#fff;font-size:1.5rem">${esc(S.stu.code)}</span></div><a class="btn sm" href="#/qr">عرض QR</a></div></div>
+  ${lowAlert(st)}
+  <div class="grid g4" style="margin-top:14px"><div class="stat ok"><b>${st.p}</b><span>حضور</span></div><div class="stat bad"><b>${st.a}</b><span>غياب</span></div><div class="stat warn"><b>${st.e}</b><span>استئذان</span></div><div class="stat"><b>${st.pct === null ? "—" : st.pct + "%"}</b><span>نسبة الحضور</span><small>الاستئذان لا يُحسب</small></div></div>
+  <div class="grid g2" style="margin-top:14px"><div class="card"><h3>مجموعتي</h3>${gs.length ? gs.map(g => `<div style="margin:8px 0">${grpLine(g)}<span class="chip ok">مسجّل ✓</span></div>`).join("") : `<div class="empty">لا توجد مجموعة نشطة</div>`}</div>
+  <div class="card"><h3>آخر 4 حصص</h3>${last.length ? `<div class="list">${last.map(r => `<div><span>${esc(fmtDate(r.date))}</span>${statusChip(r.status)}</div>`).join("")}</div>` : `<div class="empty">لا توجد حصص مسجلة بعد</div>`}</div></div>
+  <div class="card"><h3>آخر الإشعارات</h3>${news.length ? `<div class="list">${news.map(n => `<div class="${n.read ? "" : "unread"}"><span><b>${esc(n.title)}</b><div class="sm mut">${esc(n.body).slice(0, 90)}</div></span></div>`).join("")}</div><a href="#/notifications">كل الإشعارات</a>` : `<div class="empty">لا توجد إشعارات</div>`}</div>`, "home");
+};
+
+V.groups = () => {
+  const mine = new Set(activeEnrolls().map(e => e.groupId));
+  shell(`<h2>السناتر والمجموعات ومواعيدها</h2>${S.centers.map(c => { const gs = S.groups.filter(g => g.centerId === c.id); if (!gs.length) return ""; return `<div class="card"><h3>📍 ${esc(c.name)}</h3>${c.address ? `<div class="mut sm">${esc(c.address)}</div>` : ""}<div class="list">${gs.map(g => `<div><span>${grpLine(g)}<span class="chip">${esc(g.grade)}</span></span>${mine.has(g.id) ? `<span class="chip ok">مجموعتي</span>` : ""}</div>`).join("")}</div></div>`; }).join("") || `<div class="empty">لا توجد مجموعات بعد</div>`}`, "groups");
+};
+
+V.track = () => {
+  const st = attStats(S.records), rs = sortRecs(S.records);
+  shell(`<h2>المتابعة</h2>${lowAlert(st)}<div class="grid g4"><div class="stat"><b>${st.total}</b><span>إجمالي الحصص</span></div><div class="stat ok"><b>${st.p}</b><span>حضور</span></div><div class="stat bad"><b>${st.a}</b><span>غياب</span></div><div class="stat warn"><b>${st.e}</b><span>استئذان</span></div></div>
+  <div class="card"><div class="row"><b>نسبة الحضور: ${st.pct === null ? "—" : st.pct + "%"}</b><span class="mut sm">(حضور ÷ (حضور + غياب) — الاستئذان لا يؤثر)</span></div><div class="pbar" style="margin-top:8px"><i style="width:${st.pct || 0}%;${st.pct !== null && st.pct < LOW_ATT ? "background:var(--red)" : ""}"></i></div></div>
+  <div class="card"><h3>آخر 4 حصص</h3>${rs.slice(0, 4).map(r => `<div class="row" style="justify-content:space-between;padding:6px 0"><span>${esc(fmtDate(r.date))}</span>${statusChip(r.status)}</div>`).join("") || `<div class="empty">لا يوجد سجل بعد</div>`}</div>
+  <div class="card"><h3>السجل الكامل</h3>${rs.length ? `<div class="tw"><table><thead><tr><th>التاريخ</th><th>الحالة</th></tr></thead><tbody>${rs.map(r => `<tr><td>${esc(fmtDate(r.date))}</td><td>${statusChip(r.status)}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">—</div>`}</div>`, "track");
+};
+
+V.homework = () => {
+  watchHomework();
+  if (S.hw === null) return shell(`<h2>الواجبات</h2><div class="spin"></div>`, "homework");
+  const list = [...S.hw].sort((a, b) => String(b.assignedDate).localeCompare(String(a.assignedDate)));
+  const tr = id => S.tracks.find(t => t.homeworkId === id);
+  // واجب الحصة العام (اللي المساعد بيسجله وقت المسح لما مفيش واجب محدد)
+  const gen = S.tracks.filter(t => String(t.homeworkId).startsWith("gen_")).sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  const genHtml = gen.length ? `<h3 style="margin-top:18px">متابعة واجب الحصص</h3><div class="card"><div class="list">${gen.map(t => `<div><span><b>واجب الحصة</b> <span class="sm mut">${esc(fmtDate(t.date))}</span></span>${t.done ? `<span class="chip ok">✔ تم حل الواجب</span>` : `<span class="chip bad">✘ لم يُحل</span>`}</div>`).join("")}</div></div>` : "";
+  shell(`<h2>الواجبات</h2><p class="mut">تُسجَّل حالة الواجب بواسطة المساعد عند دخولك السنتر. لا يوجد رفع إجابات هنا.</p>
+  ${list.map(h => { const t = tr(h.id); return `<div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${esc(h.title)}</h3>${h.status === "ended" ? `<span class="chip">منتهٍ</span>` : `<span class="chip ok">نشط</span>`}</div>
+    <p>${esc(h.description || "")}</p><div class="sm mut">التكليف: ${esc(fmtDate(h.assignedDate))}${h.dueDate ? ` • التسليم/المراجعة: ${esc(fmtDate(h.dueDate))}` : ""}</div>${h.notes ? `<div class="note">${esc(h.notes)}</div>` : ""}
+    ${h.attachmentUrl ? `<a class="btn ghost sm" target="_blank" rel="noopener" href="${esc(h.attachmentUrl)}">فتح المرفق</a>` : ""}
+    <div style="margin-top:8px">${t ? (t.done ? `<span class="chip ok">✔ تم حل الواجب</span>` : `<span class="chip bad">✘ لم يُحل</span>`) : `<span class="chip">لم تُسجَّل المتابعة بعد</span>`}</div></div>`; }).join("") || (gen.length ? "" : `<div class="empty">لا توجد واجبات</div>`)}${genHtml}`, "homework");
+};
+
+V.exams = () => {
+  const l = [...S.results].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  shell(`<h2>الامتحانات والنتائج</h2>${l.map(r => { const p = Math.round(r.score / r.total * 100); return `<div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${esc(r.examName)}</h3><span class="mut sm">${esc(fmtDate(r.date))}</span></div>
+    <div class="row"><span class="big-code" style="font-size:1.7rem">${esc(r.score)} / ${esc(r.total)}</span><span class="chip ${p >= 85 ? "ok" : p >= 50 ? "warn" : "bad"}">${p}%</span></div><div class="pbar"><i style="width:${Math.min(p, 100)}%"></i></div></div>`; }).join("") || `<div class="empty">لا توجد نتائج منشورة بعد</div>`}`, "exams");
+};
+
+V.notifications = () => {
+  const l = [...S.inbox].sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+  shell(`<div class="row" style="justify-content:space-between"><h2>الإشعارات</h2>${unreadCount() ? `<button class="btn ghost sm" data-act="readAll">تعليم الكل كمقروء</button>` : ""}</div>
+  ${l.map(n => `<div class="card ${n.read ? "" : "unread"}" data-act="readOne" data-id="${esc(n.id)}" style="cursor:pointer"><div class="row" style="justify-content:space-between"><b>${esc(n.title)}</b>${n.read ? "" : `<span class="chip ok">جديد</span>`}</div><p style="margin:.4em 0">${esc(n.body)}</p><div class="sm mut">${esc(fmtTs(n.createdAt))}</div></div>`).join("") || `<div class="empty">لا توجد إشعارات</div>`}`, "notifications");
+};
+ACT.readOne = async t => { const n = S.inbox.find(x => x.id === t.dataset.id); if (n && !n.read) await updateDoc(doc(db, "inbox", n.id), { read: true, readAt: serverTimestamp() }); };
+ACT.readAll = async () => { await Promise.all(S.inbox.filter(n => !n.read).map(n => updateDoc(doc(db, "inbox", n.id), { read: true, readAt: serverTimestamp() }))); };
+
+V.qr = () => {
+  const q = qrcode(0, "M"); q.addData(qrText()); q.make(); const url = q.createDataURL(8, 3);
+  shell(`<h2>كود QR الخاص بي</h2><div class="qrbox"><img alt="QR" src="${url}"><div style="margin-top:8px">كود الطالب: <span class="big-code" style="font-size:1.6rem">${esc(S.stu.code)}</span></div><div class="b">${esc(S.stu.name)}</div></div>
+  <p class="mut c">اعرض الكود للمساعد عند المدخل. ارفع سطوع الشاشة لو المسح بطيء.</p><div class="c"><a class="btn ghost" download="qr-${esc(S.stu.code)}.gif" href="${url}">حفظ الصورة</a></div>`, "qr");
+};
+
+V.account = () => {
+  const gs = myGroups();
+  shell(`<h2>بيانات الحساب</h2><div class="card"><dl class="kv"><dt>الاسم</dt><dd>${esc(S.stu.name)}</dd><dt>كود الطالب</dt><dd>${esc(S.stu.code)}</dd><dt>تليفون الطالب</dt><dd dir="ltr" style="text-align:right">${esc(S.stu.phone)}</dd><dt>تليفون ولي الأمر</dt><dd dir="ltr" style="text-align:right">${esc(S.stu.parentPhone)}</dd><dt>السنة الدراسية</dt><dd>${esc(S.stu.grade)}</dd><dt>المجموعات</dt><dd>${gs.map(g => esc(g.name)).join("، ") || "—"}</dd></dl>
+  <p class="sm mut">لتعديل أي بيانات تواصل مع الإدارة.</p></div>
+  <div class="card"><h3>تغيير كلمة المرور</h3><form data-submit="chpw"><label>كلمة المرور الحالية</label><input name="old" type="password" required><label>كلمة المرور الجديدة</label><input name="n1" type="password" minlength="6" required><button class="btn" style="margin-top:12px" type="submit">تغيير</button></form></div>
+  <div class="card"><button class="btn red" data-act="logout">تسجيل الخروج</button></div>`, "account");
+};
+ACT.chpw = async f => {
+  const v = formData(f); await reauthenticateWithCredential(auth.currentUser, EmailAuthProvider.credential(auth.currentUser.email, v.old));
+  await updatePassword(auth.currentUser, v.n1); f.reset(); toast("تم تغيير كلمة المرور");
+};
+
+window.MS = { S };
+
+</script>
+</body>
+</html>

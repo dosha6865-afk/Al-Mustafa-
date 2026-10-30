@@ -209,7 +209,8 @@ const A = { user: { uid: "local_admin" }, role: "admin", name: "الأستاذ �
 const isAdmin = () => A.role === "admin";
 const gById = id => A.groups.find(g => g.id === id), cById = id => A.centers.find(c => c.id === id);
 const unsubAll = () => { A.unsubs.forEach(f => f()); A.unsubs = []; };
-const listen = (q, cb) => { A.unsubs.push(onSnapshot(q, s => cb(mapDocs(s)), e => console.warn(e))); };
+let routeSeq = 0;
+const listen = (q, cb) => { const my = routeSeq; A.unsubs.push(onSnapshot(q, s => { if (my === routeSeq) cb(mapDocs(s)); }, e => console.warn(e))); };
 async function loadBase() {
   try {
     const [c, g] = await Promise.all([getDocs(collection(db, "centers")), getDocs(collection(db, "groups"))]);
@@ -324,13 +325,14 @@ function renderShell() {
 }
 const V = {};
 async function route() {
+  const my = ++routeSeq;
   unsubAll(); stopScan();
-  let r = (location.hash || "#/").slice(2).split("?")[0] || "dashboard";
+  let r =(location.hash || "#/").slice(2).split("?")[0] || "dashboard";
   if (!navItems().some(n => n[0] === r)) r = "dashboard";
   $$("#nav a").forEach(a => a.classList.toggle("on", a.dataset.k === r));
   const el = $("#view"); if (!el) return; el.innerHTML = `<div class="spin"></div>`;
-  try { await V[r](el); } catch (e) { console.error(e); el.innerHTML = `<div class="err">${esc(errMsg(e))}</div>`; }
-  window.scrollTo(0, 0);
+  try { await V[r](el); } catch (e) { console.error(e); if (my === routeSeq) el.innerHTML = `<div class="err">${esc(errMsg(e))}</div>`; }
+  if (my === routeSeq) window.scrollTo(0, 0);
 }
 const rerender = () => route();
 window.addEventListener("hashchange", () => { if ($("#view")) route(); });
@@ -502,23 +504,74 @@ V.scan = async el => {
   if (window.location.protocol === "https:" || window.location.hostname === "localhost") startScan();
 };
 
+let stopping = Promise.resolve(), scanDog = null, scanStarting = false;
+const SCAN_CFG = { fps: 12, disableFlip: true, qrbox: (w, h) => { const s = Math.floor(Math.min(w, h) * .75); return { width: s, height: s }; } };
+const camErr = e => (e && (e.name === "NotAllowedError" || e.name === "PermissionDeniedError" || /permission/i.test(String(e.message || e))))
+  ? "الكاميرا غير مسموح بها — اضغط على القفل بجوار رابط الموقع واسمح بالكاميرا ثم أعد التشغيل."
+  : "تعذر تشغيل الكاميرا — تأكد أن تطبيقًا آخر لا يستخدمها ثم اضغط إعادة التشغيل، أو استخدم تصوير الكود / كتابة الكود.";
 async function startScan() {
-  if (scanning) return; if (!window.Html5Qrcode) { toast("تعذر تحميل مكتبة الكاميرا", "err"); return; }
+  if (scanning || scanStarting) return;
+  if (!window.Html5Qrcode) { toast("تعذر تحميل مكتبة الكاميرا", "err"); return; }
   const rd = $("#reader"); if (!rd) return;
+  scanStarting = true; let again = false;
+  const msg = $("#scanmsg"), btn = $("#sbtn");
   try {
-    rd.style.display = "block";
-    scanner = new Html5Qrcode("reader"); scanLock = false;
-    await scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: (w, h) => { const s = Math.floor(Math.min(w, h) * .72); return { width: s, height: s }; } }, onDecode, () => { });
-    scanning = true; const b = $("#sbtn"); if (b) b.style.display = "none";
+    await stopping;
+    if (!document.body.contains(rd)) { again = !!$("#reader"); return; }
+    rd.style.display = "block"; if (btn) btn.style.display = "none";
+    if (msg) { msg.className = "mut"; msg.textContent = "جاري فتح الكاميرا..."; }
+    let cams = null;
+    const attempts = [
+      async () => ({ facingMode: "environment" }),
+      async () => { cams = cams || await Html5Qrcode.getCameras(); const back = cams.find(c => /back|rear|environment|خلف/i.test(c.label)) || cams[cams.length - 1]; if (!back) throw new Error("no camera"); return back.id; },
+      async () => ({ facingMode: "user" })
+    ];
+    let lastErr = null;
+    for (const mk of attempts) {
+      if (!document.body.contains(rd)) { again = !!$("#reader"); return; }
+      const cfg = { verbose: false }; if (window.Html5QrcodeSupportedFormats) cfg.formatsToSupport = [Html5QrcodeSupportedFormats.QR_CODE]; cfg.experimentalFeatures = { useBarCodeDetectorIfSupported: true };
+      const sc = new Html5Qrcode("reader", cfg);
+      try {
+        scanner = sc; scanLock = false;
+        await sc.start(await mk(), SCAN_CFG, onDecode, () => { });
+        if (scanner !== sc || !document.body.contains(rd)) { try { await sc.stop(); } catch (_) { } try { sc.clear(); } catch (_) { } again = !!$("#reader"); return; }
+        scanning = true; startDog();
+        const m2 = $("#scanmsg"); if (m2) m2.textContent = "وجّه الكاميرا نحو كود QR الخاص بالطالب";
+        return;
+      } catch (e) {
+        lastErr = e; console.warn("camera attempt", e);
+        try { await sc.stop(); } catch (_) { } try { sc.clear(); } catch (_) { }
+        if (scanner === sc) scanner = null;
+        if (e && (e.name === "NotAllowedError" || e.name === "PermissionDeniedError")) break;
+      }
+    }
+    throw lastErr || new Error("camera");
   } catch (e) {
-    console.warn(e); scanner = null; scanning = false;
-    if (rd) rd.style.display = "none";
-    const m = $("#scanmsg"); if (m) m.innerHTML = `<span style="color:var(--red);font-weight:700">تعذر تشغيل الكاميرا — اسمح للمتصفح باستخدام الكاميرا أو استخدم تصوير الكود / كتابة الكود.</span>`;
-    toast("تعذر تشغيل الكاميرا", "err");
-  }
+    scanner = null; scanning = false;
+    if (!document.body.contains(rd)) return;
+    rd.style.display = "none";
+    if (btn) { btn.style.display = ""; btn.textContent = "🔄 إعادة تشغيل الكاميرا"; }
+    if (msg) { msg.className = ""; msg.innerHTML = `<span style="color:var(--red);font-weight:700">${esc(camErr(e))}</span>`; }
+  } finally { scanStarting = false; if (again) setTimeout(startScan, 100); }
 }
+// مراقب: لو الكاميرا وقفت أو اتقطعت أثناء الفحص يعيد تشغيلها تلقائيًا
+function startDog() {
+  clearInterval(scanDog);
+  scanDog = setInterval(() => {
+    if (!scanning) return;
+    if (!$("#reader")) { stopScan(); return; }
+    const v = $("#reader video"), tr = v && v.srcObject && v.srcObject.getVideoTracks()[0];
+    if (v && v.paused && tr && tr.readyState === "live") v.play().catch(() => { });
+    if (!v || !tr || tr.readyState !== "live") { stopScan(); startScan(); }
+  }, 2500);
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "visible" || !$("#reader")) return;
+  if (!scanning) { startScan(); return; }
+  const v = $("#reader video"); if (v && v.paused) v.play().catch(() => { });
+});
 ACT.startScan = () => startScan();
-function stopScan() { if (scanner) { const s = scanner; scanner = null; scanning = false; s.stop().then(() => s.clear()).catch(() => { }); } }
+function stopScan() { clearInterval(scanDog); scanDog = null; if (scanner) { const s = scanner; scanner = null; scanning = false; stopping = (async () => { try { await s.stop(); } catch (_) { } try { s.clear(); } catch (_) { } })(); } }
 async function onDecode(text) {
   if (scanLock) return; scanLock = true; navigator.vibrate && navigator.vibrate(60);
   const box = $("#result"); if (!box) return;

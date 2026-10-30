@@ -251,7 +251,7 @@ function shell(inner, active) {
   app.innerHTML = `<header class="top"><a class="logo" href="#/${logged ? "home" : ""}"><div class="mark"><img src="https://a.top4top.io/p_3955ecqr41.jpg" alt="Logo"></div><span>الأستاذ محمد مصطفى</span></a><span class="sp"></span>
     ${logged ? `<button class="btn ghost sm" data-act="logout">خروج</button>` : `<a class="btn ghost sm" href="#/login">دخول</a><a class="btn sm" href="#/signup">حساب جديد</a>`}</header>
     ${logged ? `<nav class="pills">${NAV.map(([k, t]) => `<a href="#/${k}" class="${k === active ? "on" : ""}">${t}${k === "notifications" && unreadCount() ? `<span class="dot">${unreadCount()}</span>` : ""}</a>`).join("")}</nav>` : ""}
-    <main>${inner}</main><footer class="f">${rnd(PHRASES)} — مدرس الرياضيات بالإسكندرية 💚</footer>`;
+    <main>${inner}</main><footer class="f">${rnd(PHRASES)}  — مدرس الرياضيات بالإسكندرية 💚 جميع الحقوق محفوظه Dosha X للتواصل (01286078064)</footer>`;
 }
 ACT.logout = async () => { await signOut(auth); location.hash = "#/"; };
 
